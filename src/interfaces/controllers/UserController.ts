@@ -2,10 +2,10 @@
 
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { PrismaClient } from '@prisma/client';
-import { GetUser } from '../../application/getUser';
-import { CreateUser } from '../../application/createUser';
-import { UpdateUser } from '../../application/updateUser';
-import { DeleteUser } from '../../application/deleteUser';
+import { GetUser } from '../../application/User/getUser';
+import { CreateUser } from '../../application/User/createUser';
+import { UpdateUser } from '../../application/User/updateUser';
+import { DeleteUser } from '../../application/User/deleteUser';
 import { PrismaUserRepository } from '../../infrastructure/repositories/PrismaUserRepository';
 
 export class UserController {

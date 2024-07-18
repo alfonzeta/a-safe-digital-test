@@ -2,8 +2,8 @@
 
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { PrismaClient } from '@prisma/client';
-import { User } from '../domain/User'; // Adjust the path based on your project structure
-import { PrismaUserRepository } from '../infrastructure/repositories/PrismaUserRepository'; // Adjust the path based on your project structure
+import { User } from '../../domain/User'; // Adjust the path based on your project structure
+import { PrismaUserRepository } from '../../infrastructure/repositories/PrismaUserRepository'; // Adjust the path based on your project structure
 
 interface UpdateUserRequestParams {
     id: string;

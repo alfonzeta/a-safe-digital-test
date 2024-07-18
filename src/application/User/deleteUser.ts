@@ -1,7 +1,7 @@
 // Import necessary modules and dependencies
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { PrismaClient } from '@prisma/client';
-import { PrismaUserRepository } from '../infrastructure/repositories/PrismaUserRepository'; // Adjust the path based on your project structure
+import { PrismaUserRepository } from '../../infrastructure/repositories/PrismaUserRepository'; // Adjust the path based on your project structure
 
 // Define the type of request parameters
 interface DeleteUserRequestParams {

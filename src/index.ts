@@ -1,6 +1,9 @@
+
 import fastify from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { userRoutes } from './interfaces/routes/userRoutes';
+import { postRoutes } from './interfaces/routes/postRoutes';
+
 
 const server = fastify();
 const prisma = new PrismaClient({
@@ -14,8 +17,11 @@ const prisma = new PrismaClient({
 
 // Register routes
 import { UserController } from './interfaces/controllers/UserController';
+import { PostController } from './interfaces/controllers/PostController';
 const userController = new UserController(prisma);
+const postController = new PostController(prisma);
 userRoutes(server, userController);
+postRoutes(server, postController);
 
 // Start the server
 server.listen(8080, "0.0.0.0", async (err, address) => {

@@ -78,12 +78,3 @@ export class PrismaPostRepository implements PostRepository {
         }
     }
 }
-
-// Usage example
-const postRepository = new PrismaPostRepository(prisma);
-
-const newPost = new Post(null, 'My First Post', 'This is the content of my first post.', null, 1);
-
-postRepository.create(newPost).then(createdPost => {
-    console.log('Created Post:', createdPost);
-});

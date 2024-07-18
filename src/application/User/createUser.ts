@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { PrismaClient } from '@prisma/client';
-import { User } from '../domain/User'; // Adjust the path as per your project structure
-import { PrismaUserRepository } from '../infrastructure/repositories/PrismaUserRepository';
+import { User } from '../../domain/User'; // Adjust the path as per your project structure
+import { PrismaUserRepository } from '../../infrastructure/repositories/PrismaUserRepository';
 
 export const CreateUser = async (request: FastifyRequest, reply: FastifyReply, prisma: PrismaClient): Promise<void> => {
     const userRepository = new PrismaUserRepository(prisma);

@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { PrismaClient } from '@prisma/client';
-import { PrismaUserRepository } from '../infrastructure/repositories/PrismaUserRepository';
+import { PrismaUserRepository } from '../../infrastructure/repositories/PrismaUserRepository';
 
 // Define interface for route parameters
 interface Params {
