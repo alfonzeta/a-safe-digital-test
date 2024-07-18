@@ -1,13 +1,12 @@
-import { PrismaClient } from '@prisma/client';
-import { UserRepository } from "../../domain/UserRepository";
+import { Prisma, PrismaClient } from '@prisma/client';
 import { User } from "../../domain/User";
-import { prisma } from "../db/client"; // Make sure this path is correct
-import { Prisma } from '@prisma/client'; // Import Prisma to handle known errors
+import { UserRepository } from "../../domain/UserRepository";
+
 export class PrismaUserRepository implements UserRepository {
   constructor(private prisma: PrismaClient) { }
   async create(user: User): Promise<User> {
     try {
-      const createdUser = await prisma.user.create({
+      const createdUser = await this.prisma.user.create({
         data: {
           name: user.name,
           email: user.email,
@@ -18,12 +17,12 @@ export class PrismaUserRepository implements UserRepository {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new Error('Email already exists');
       }
-      throw error; // Rethrow if it's not the known error
+      throw error;
     }
   }
 
   async findById(id: number): Promise<User | null> {
-    const user = await prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
     });
     if (!user) return null;
@@ -41,8 +40,8 @@ export class PrismaUserRepository implements UserRepository {
 
   async update(user: User): Promise<User> {
     try {
-      const updatedUser = await prisma.user.update({
-        where: { id: user.id as number }, // Ensure id is not null
+      const updatedUser = await this.prisma.user.update({
+        where: { id: user.id as number },
         data: {
           name: user.name,
           email: user.email,
@@ -53,13 +52,13 @@ export class PrismaUserRepository implements UserRepository {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new Error('Email already exists');
       }
-      throw error; // Rethrow if it's not the known error
+      throw error;
     }
   }
 
   async delete(id: number): Promise<void> {
     try {
-      await prisma.user.delete({
+      await this.prisma.user.delete({
         where: { id },
       });
     } catch (error) {
@@ -69,7 +68,7 @@ export class PrismaUserRepository implements UserRepository {
           throw new Error('User not found');
         }
       }
-      throw error; // Rethrow if it's not the known error
+      throw error;
     }
   }
 }

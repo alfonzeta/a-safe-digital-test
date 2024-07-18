@@ -1,15 +1,13 @@
-import { PrismaClient } from '@prisma/client';
-import { PostRepository } from "../../domain/PostRepository";
+import { Prisma, PrismaClient } from '@prisma/client';
 import { Post } from "../../domain/Post";
-import { prisma } from "../db/client"; // Ensure this path is correct
-import { Prisma } from '@prisma/client'; // Import Prisma to handle known errors
+import { PostRepository } from "../../domain/PostRepository";
 
 export class PrismaPostRepository implements PostRepository {
     constructor(private prisma: PrismaClient) { }
 
     async create(post: Post): Promise<Post> {
         try {
-            const createdPost = await prisma.post.create({
+            const createdPost = await this.prisma.post.create({
                 data: {
                     title: post.title,
                     content: post.content,
@@ -24,26 +22,26 @@ export class PrismaPostRepository implements PostRepository {
                     throw new Error('Post already exists with the same unique identifier');
                 }
             }
-            throw error; // Rethrow if it's not the known error
+            throw error;
         }
     }
 
     async findById(id: number): Promise<Post | null> {
         try {
-            const post = await prisma.post.findUnique({
+            const post = await this.prisma.post.findUnique({
                 where: { id },
             });
             if (!post) return null;
             return new Post(post.id, post.title, post.content, post.createdAt, post.userId);
         } catch (error) {
-            throw error; // Re-throw error for further handling
+            throw error;
         }
     }
 
     async update(post: Post): Promise<Post> {
         try {
-            const updatedPost = await prisma.post.update({
-                where: { id: post.id as number }, // Ensure id is not null
+            const updatedPost = await this.prisma.post.update({
+                where: { id: post.id as number },
                 data: {
                     title: post.title,
                     content: post.content,
@@ -59,13 +57,13 @@ export class PrismaPostRepository implements PostRepository {
                     throw new Error('Post not found');
                 }
             }
-            throw error; // Rethrow if it's not the known error
+            throw error;
         }
     }
 
     async delete(id: number): Promise<void> {
         try {
-            await prisma.post.delete({
+            await this.prisma.post.delete({
                 where: { id },
             });
         } catch (error) {
@@ -74,7 +72,7 @@ export class PrismaPostRepository implements PostRepository {
                     throw new Error('Post not found');
                 }
             }
-            throw error; // Rethrow if it's not the known error
+            throw error;
         }
     }
 }
