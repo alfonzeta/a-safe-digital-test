@@ -1,7 +1,8 @@
+// domain/User.ts
 export class User {
   constructor(
-    public id: number,
+    public id: number | null,
     public name: string,
-    public email: string
+    public email: string,
   ) { }
 }
