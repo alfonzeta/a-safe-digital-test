@@ -1,10 +1,16 @@
-
+import websocketPlugin from '@fastify/websocket';
 import fastify from 'fastify';
 import { container } from './config/di';
 import { registerRoutes } from './config/routes';
 
 const server = fastify();
+
+server.register(websocketPlugin);
 registerRoutes(server);
+
+server.register(async function (fastify) {
+    fastify.get('/ws', { websocket: true }, (socket, req) => {})
+});
 
 server.listen(8080, "0.0.0.0", async (err, address) => {
     if (err) {

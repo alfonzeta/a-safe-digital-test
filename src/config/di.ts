@@ -12,6 +12,8 @@ import { UpdatePostUseCase } from '../application/usecases/Post/UpdatePostUseCas
 
 import { PostController } from '../infrastructure/controllers/PostController';
 import { UserController } from '../infrastructure/controllers/UserController';
+import { WebSocketController } from '../infrastructure/controllers/WebSocketController';
+
 import { PrismaPostRepository } from '../infrastructure/persistence/PrismaPostRepository';
 import { PrismaUserRepository } from '../infrastructure/persistence/PrismaUserRepository';
 
@@ -41,6 +43,7 @@ const getPostUseCase = new GetPostUseCase(postRepository);
 const updatePostUseCase = new UpdatePostUseCase(postRepository);
 
 // Controllers
+// http
 const postController = new PostController(
   createPostUseCase,
   deletePostUseCase,
@@ -54,6 +57,9 @@ const userController = new UserController(
   deleteUserUseCase
 );
 
+// websockets
+const webSocketController = new WebSocketController();
+
 export const container = {
   prisma,
   repositories: {
@@ -64,7 +70,7 @@ export const container = {
     getUserUseCase,
     createUserUseCase,
     updateUserUseCase,
-    deleteUserUseCase,
+    deleteUserUseCase,  
     createPostUseCase,
     deletePostUseCase,
     getPostUseCase,
@@ -72,6 +78,7 @@ export const container = {
   },
   controllers: {
     userController,
-    postController
+    postController,
+    webSocketController
   }
 };
