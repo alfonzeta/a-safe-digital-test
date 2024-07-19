@@ -1,7 +1,7 @@
 import { User } from '../../../domain/User';
 import { UserRepository } from '../../../domain/UserRepository';
 
-class CreateUserUseCase {
+class SignUpUseCase {
     constructor(private readonly userRepository: UserRepository) { }
 
     public async execute(name: string, email: string, password: string): Promise<User | null> {
@@ -22,4 +22,4 @@ class CreateUserUseCase {
     }
 }
 
-export { CreateUserUseCase };
+export { SignUpUseCase };

@@ -4,6 +4,7 @@ import { CreateUserUseCase } from '../application/usecases/User/CreateUserUseCas
 import { DeleteUserUseCase } from '../application/usecases/User/DeleteUserUseCase';
 import { GetUserUseCase } from '../application/usecases/User/GetUserUseCase';
 import { UpdateUserUseCase } from '../application/usecases/User/UpdateUserUseCase';
+import { SignInUseCase } from '../application/usecases/User/SignInUseCase';
 
 import { CreatePostUseCase } from '../application/usecases/Post/CreatePostUseCase';
 import { DeletePostUseCase } from '../application/usecases/Post/DeletePostUseCase';
@@ -21,8 +22,8 @@ import { PrismaUserRepository } from '../infrastructure/persistence/PrismaUserRe
 const prisma = new PrismaClient({
   datasources: {
     db: {
-        url: "postgres://postgres:password@localhost:5432/mydatabase"
-        // url: process.env.DATABASE_URL,
+      url: "postgres://postgres:password@localhost:5432/mydatabase"
+      // url: process.env.DATABASE_URL,
     },
   },
 });
@@ -36,6 +37,7 @@ const getUserUseCase = new GetUserUseCase(userRepository);
 const createUserUseCase = new CreateUserUseCase(userRepository);
 const updateUserUseCase = new UpdateUserUseCase(userRepository);
 const deleteUserUseCase = new DeleteUserUseCase(userRepository);
+const signInUseCase = new SignInUseCase(userRepository)
 
 const createPostUseCase = new CreatePostUseCase(postRepository);
 const deletePostUseCase = new DeletePostUseCase(postRepository);
@@ -54,7 +56,8 @@ const userController = new UserController(
   getUserUseCase,
   createUserUseCase,
   updateUserUseCase,
-  deleteUserUseCase
+  deleteUserUseCase,
+  signInUseCase
 );
 
 // websockets
@@ -74,7 +77,8 @@ export const container = {
     createPostUseCase,
     deletePostUseCase,
     getPostUseCase,
-    updatePostUseCase
+    updatePostUseCase,
+    signInUseCase
   },
   controllers: {
     userController,

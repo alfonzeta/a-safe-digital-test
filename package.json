@@ -14,11 +14,14 @@
   "dependencies": {
     "@fastify/websocket": "^10.0.1",
     "@prisma/client": "^5.17.0",
+    "bcrypt": "^5.1.1",
     "fastify": "^4.28.1",
     "fastify-cli": "^6.2.1",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "fastify-jwt": "^4.2.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20.14.11",
     "@types/ws": "^8.5.11",
     "prisma": "^5.17.0",

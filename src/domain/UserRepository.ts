@@ -6,4 +6,5 @@ export interface UserRepository {
   findById(id: number): Promise<User | null>;
   update(user: User): Promise<User>;
   delete(id: number): Promise<void>;
+  validatePassword(email: string, password: string): Promise<boolean>;
 }

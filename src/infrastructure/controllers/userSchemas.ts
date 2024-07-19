@@ -29,10 +29,14 @@ export const getUserSchema = {
 export const createUserSchema = {
     body: {
         type: 'object',
-        required: ['name', 'email'],
+        required: ['name', 'email', 'password'], // Include 'password' in required fields
         properties: {
             name: { type: 'string' },
             email: { type: 'string', format: 'email' },
+            password: {
+                type: 'string',
+                minLength: 6, // Example rule: minimum length of 6 characters
+            },
         },
     },
     response: {
@@ -42,6 +46,24 @@ export const createUserSchema = {
                 id: { type: 'integer' },
                 name: { type: 'string' },
                 email: { type: 'string' },
+            },
+        },
+        400: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
+            },
+        },
+        404: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
+            },
+        },
+        500: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
             },
         },
     },
@@ -90,6 +112,34 @@ export const deleteUserSchema = {
             type: 'null',
         },
         404: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
+            },
+        },
+    },
+};
+
+
+export const signInSchema = {
+    body: {
+        type: 'object',
+        required: ['email', 'password'],
+        properties: {
+            email: { type: 'string', format: 'email' },
+            password: { type: 'string' },
+        },
+    },
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                id: { type: 'integer' },
+                name: { type: 'string' },
+                email: { type: 'string' },
+            },
+        },
+        401: {
             type: 'object',
             properties: {
                 error: { type: 'string' },

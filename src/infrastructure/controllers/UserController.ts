@@ -5,6 +5,7 @@ import { CreateUserUseCase } from '../../application/usecases/User/CreateUserUse
 import { DeleteUserUseCase } from '../../application/usecases/User/DeleteUserUseCase';
 import { GetUserUseCase } from '../../application/usecases/User/GetUserUseCase';
 import { UpdateUserUseCase } from '../../application/usecases/User/UpdateUserUseCase';
+import { SignInUseCase } from '../../application/usecases/User/SignInUseCase';
 
 interface Params {
     id: string;
@@ -15,14 +16,15 @@ export class UserController {
         private readonly getUserUseCase: GetUserUseCase,
         private readonly createUserUseCase: CreateUserUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
-        private readonly deleteUserUseCase: DeleteUserUseCase
-    ) {}
+        private readonly deleteUserUseCase: DeleteUserUseCase,
+        private readonly signInUseCase: SignInUseCase
+    ) { }
 
     async getUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const params = request.params as Params;
             const userId = parseInt(params.id, 10);
-            
+
             const user = await this.getUserUseCase.execute(userId);
             if (!user) {
                 reply.code(404).send({ error: 'User not found' });
@@ -36,15 +38,31 @@ export class UserController {
 
     async createUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
-            const { name, email } = request.body as { name: string; email: string };
-            const createdUser = await this.createUserUseCase.execute(name, email);
-            if (!createdUser) {
+            const { name, email, password } = request.body as { name: string; email: string; password: string };
+
+            // Validation is handled by the schema, so no need to check for password here
+
+            if (!email) {
                 reply.code(400).send({ error: 'Email already exists' });
                 return;
             }
+            const createdUser = await this.createUserUseCase.execute(name, email, password);
+
             reply.code(201).send(createdUser);
         } catch (error) {
-            reply.code(500).send({ error: 'Internal Server Error' });
+            // Type guard to check if error is an instance of Error
+            if (error instanceof Error) {
+                if (error.message === 'Email already exists') {
+                    reply.code(400).send({ error: 'Email already exists' });
+                } else if (error.message === 'Password is required') {
+                    reply.code(404).send({ error: 'Password is required' });
+                } else {
+                    reply.code(500).send({ error: 'Internal Server Error' });
+                }
+            } else {
+                // Handle unexpected error types
+                reply.code(500).send({ error: 'Internal Server Error' });
+            }
         }
     }
 
@@ -85,6 +103,20 @@ export class UserController {
             } else {
                 reply.code(500).send({ error: 'Internal Server Error' });
             }
+        }
+    }
+
+    async signIn(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+        try {
+            const { email, password } = request.body as { email: string; password: string };
+            const user = await this.signInUseCase.execute(email, password);
+            if (!user) {
+                reply.code(401).send({ error: 'Invalid email or password' });
+                return;
+            }
+            reply.send(user);
+        } catch (error) {
+            reply.code(500).send({ error: 'Internal Server Error' });
         }
     }
 }

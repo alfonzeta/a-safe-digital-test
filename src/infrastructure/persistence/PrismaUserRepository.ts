@@ -1,21 +1,28 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { User } from "../../domain/User";
 import { UserRepository } from "../../domain/UserRepository";
+import bcrypt from 'bcrypt';
+import { log } from 'console';
+
+const SALT_ROUNDS = 10;
 
 export class PrismaUserRepository implements UserRepository {
   constructor(private prisma: PrismaClient) { }
+
   async create(user: User): Promise<User> {
     try {
+      const hashedPassword: string = await bcrypt.hash(user.password!, SALT_ROUNDS);
       const createdUser = await this.prisma.user.create({
         data: {
           name: user.name,
           email: user.email,
+          password: hashedPassword, // Save hashed password
         },
       });
-      return new User(createdUser.id, createdUser.name, createdUser.email);
+      return new User(createdUser.id, createdUser.name, createdUser.email, createdUser.password);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new Error('Email already exists');
+        throw new Error('Email already exists2');
       }
       throw error;
     }
@@ -26,7 +33,7 @@ export class PrismaUserRepository implements UserRepository {
       where: { id },
     });
     if (!user) return null;
-    return new User(user.id, user.name, user.email);
+    return new User(user.id, user.name, user.email, user.password);
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -35,19 +42,21 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     if (!user) return null;
-    return new User(user.id, user.name, user.email);
+    return new User(user.id, user.name, user.email, user.password);
   }
 
   async update(user: User): Promise<User> {
     try {
+      const hashedPassword: string = await bcrypt.hash(user.password!, SALT_ROUNDS);
       const updatedUser = await this.prisma.user.update({
         where: { id: user.id as number },
         data: {
           name: user.name,
           email: user.email,
+          password: hashedPassword, // Save hashed password
         },
       });
-      return new User(updatedUser.id, updatedUser.name, updatedUser.email);
+      return new User(updatedUser.id, updatedUser.name, updatedUser.email, updatedUser.password);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new Error('Email already exists');
@@ -55,6 +64,7 @@ export class PrismaUserRepository implements UserRepository {
       throw error;
     }
   }
+
 
   async delete(id: number): Promise<void> {
     try {
@@ -70,5 +80,13 @@ export class PrismaUserRepository implements UserRepository {
       }
       throw error;
     }
+  }
+
+  async validatePassword(email: string, password: string): Promise<boolean> {
+    const user = await this.findByEmail(email);
+
+    if (!user || !user.password) return false;
+    const isMatch = await bcrypt.compare(password, user.password);
+    return isMatch;
   }
 }
