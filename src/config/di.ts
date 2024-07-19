@@ -5,6 +5,8 @@ import { DeleteUserUseCase } from '../application/usecases/User/DeleteUserUseCas
 import { GetUserUseCase } from '../application/usecases/User/GetUserUseCase';
 import { UpdateUserUseCase } from '../application/usecases/User/UpdateUserUseCase';
 import { SignInUseCase } from '../application/usecases/User/SignInUseCase';
+import { SignUpUseCase } from '../application/usecases/User/SignUpUseCase';
+import { CreateAdminUseCase } from '../application/usecases/User/CreateAdminUseCase';
 
 import { CreatePostUseCase } from '../application/usecases/Post/CreatePostUseCase';
 import { DeletePostUseCase } from '../application/usecases/Post/DeletePostUseCase';
@@ -38,6 +40,8 @@ const createUserUseCase = new CreateUserUseCase(userRepository);
 const updateUserUseCase = new UpdateUserUseCase(userRepository);
 const deleteUserUseCase = new DeleteUserUseCase(userRepository);
 const signInUseCase = new SignInUseCase(userRepository)
+const signUpUseCase = new SignUpUseCase(userRepository)
+const createAdminUseCase = new CreateAdminUseCase(userRepository)
 
 const createPostUseCase = new CreatePostUseCase(postRepository);
 const deletePostUseCase = new DeletePostUseCase(postRepository);
@@ -57,7 +61,9 @@ const userController = new UserController(
   createUserUseCase,
   updateUserUseCase,
   deleteUserUseCase,
-  signInUseCase
+  signInUseCase,
+  signUpUseCase,
+  createAdminUseCase
 );
 
 // websockets
@@ -73,12 +79,13 @@ export const container = {
     getUserUseCase,
     createUserUseCase,
     updateUserUseCase,
-    deleteUserUseCase,  
+    deleteUserUseCase,
     createPostUseCase,
     deletePostUseCase,
     getPostUseCase,
     updatePostUseCase,
-    signInUseCase
+    signInUseCase,
+    createAdminUseCase
   },
   controllers: {
     userController,

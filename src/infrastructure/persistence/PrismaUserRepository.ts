@@ -2,7 +2,6 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { User } from "../../domain/User";
 import { UserRepository } from "../../domain/UserRepository";
 import bcrypt from 'bcrypt';
-import { log } from 'console';
 
 const SALT_ROUNDS = 10;
 
@@ -16,7 +15,8 @@ export class PrismaUserRepository implements UserRepository {
         data: {
           name: user.name,
           email: user.email,
-          password: hashedPassword, // Save hashed password
+          password: hashedPassword,
+          roleId: user.roleId
         },
       });
       return new User(createdUser.id, createdUser.name, createdUser.email, createdUser.password);

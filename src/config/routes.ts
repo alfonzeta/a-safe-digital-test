@@ -8,6 +8,7 @@ export const registerRoutes = (fastify: FastifyInstance) => {
   // User routes
   fastify.get<{ Params: { id: string } }>('/users/:id', { schema: getUserSchema }, (request, reply) => userController.getUser(request, reply));
   fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup', { schema: createUserSchema }, (request, reply) => userController.createUser(request, reply));
+  fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup/admin', { schema: createUserSchema }, (request, reply) => userController.createAdmin(request, reply));
   fastify.post<{ Body: { name: string, email: string, password: string } }>('/users', { schema: createUserSchema }, (request, reply) => userController.createUser(request, reply));
   fastify.put<{ Params: { id: string }, Body: { name: string, email: string } }>('/users/:id', { schema: updateUserSchema }, (request, reply) => userController.updateUser(request, reply));
   fastify.delete<{ Params: { id: string } }>('/users/:id', { schema: deleteUserSchema }, (request, reply) => userController.deleteUser(request, reply));

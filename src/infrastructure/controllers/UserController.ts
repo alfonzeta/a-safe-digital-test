@@ -6,6 +6,8 @@ import { DeleteUserUseCase } from '../../application/usecases/User/DeleteUserUse
 import { GetUserUseCase } from '../../application/usecases/User/GetUserUseCase';
 import { UpdateUserUseCase } from '../../application/usecases/User/UpdateUserUseCase';
 import { SignInUseCase } from '../../application/usecases/User/SignInUseCase';
+import { SignUpUseCase } from '../../application/usecases/User/SignUpUseCase';
+import { CreateAdminUseCase } from '../../application/usecases/User/CreateAdminUseCase';
 
 interface Params {
     id: string;
@@ -17,7 +19,9 @@ export class UserController {
         private readonly createUserUseCase: CreateUserUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
         private readonly deleteUserUseCase: DeleteUserUseCase,
-        private readonly signInUseCase: SignInUseCase
+        private readonly signInUseCase: SignInUseCase,
+        private readonly signUpUseCase: SignUpUseCase,
+        private readonly createAdminUseCase: CreateAdminUseCase
     ) { }
 
     async getUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -38,15 +42,49 @@ export class UserController {
 
     async createUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
-            const { name, email, password } = request.body as { name: string; email: string; password: string };
+            const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
+            console.log(roleId);
 
             // Validation is handled by the schema, so no need to check for password here
+
 
             if (!email) {
                 reply.code(400).send({ error: 'Email already exists' });
                 return;
             }
-            const createdUser = await this.createUserUseCase.execute(name, email, password);
+            const createdUser = await this.signUpUseCase.execute(name, email, password, roleId);
+
+            reply.code(201).send(createdUser);
+        } catch (error) {
+            // Type guard to check if error is an instance of Error
+            if (error instanceof Error) {
+                if (error.message === 'Email already exists') {
+                    reply.code(400).send({ error: 'Email already exists' });
+                } else if (error.message === 'Password is required') {
+                    reply.code(404).send({ error: 'Password is required' });
+                } else {
+                    reply.code(500).send({ error: 'Internal Server Error' });
+                }
+            } else {
+                // Handle unexpected error types
+                reply.code(500).send({ error: 'Internal Server Error' });
+            }
+        }
+    }
+
+    async createAdmin(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+        try {
+            const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
+            console.log(roleId);
+
+            // Validation is handled by the schema, so no need to check for password here
+
+
+            if (!email) {
+                reply.code(400).send({ error: 'Email already exists' });
+                return;
+            }
+            const createdUser = await this.createAdminUseCase.execute(name, email, password, roleId);
 
             reply.code(201).send(createdUser);
         } catch (error) {
