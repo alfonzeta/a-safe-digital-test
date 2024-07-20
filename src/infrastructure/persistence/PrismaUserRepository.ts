@@ -19,7 +19,7 @@ export class PrismaUserRepository implements UserRepository {
           roleId: user.roleId
         },
       });
-      return new User(createdUser.id, createdUser.name, createdUser.email, createdUser.password);
+      return new User(createdUser.id, createdUser.name, createdUser.email, createdUser.password, createdUser.roleId);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new Error('Email already exists2');
@@ -33,7 +33,10 @@ export class PrismaUserRepository implements UserRepository {
       where: { id },
     });
     if (!user) return null;
-    return new User(user.id, user.name, user.email, user.password);
+    if (user.roleId === null) {
+      throw new Error('Role ID should not be null');
+    }
+    return new User(user.id, user.name, user.email, user.password, user.roleId);
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -42,21 +45,31 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     if (!user) return null;
-    return new User(user.id, user.name, user.email, user.password);
+    if (user.roleId === null) {
+      throw new Error('Role ID should not be null');
+    }
+    return new User(user.id, user.name, user.email, user.password, user.roleId);
   }
 
   async update(user: User): Promise<User> {
     try {
-      const hashedPassword: string = await bcrypt.hash(user.password!, SALT_ROUNDS);
+      const updateData: any = {
+        name: user.name,
+        email: user.email,
+        roleId: user.roleId
+      };
+
+      if (user.password) {
+        updateData.password = await bcrypt.hash(user.password, SALT_ROUNDS);
+      }
+
       const updatedUser = await this.prisma.user.update({
         where: { id: user.id as number },
-        data: {
-          name: user.name,
-          email: user.email,
-          password: hashedPassword, // Save hashed password
-        },
+        data: updateData,
       });
-      return new User(updatedUser.id, updatedUser.name, updatedUser.email, updatedUser.password);
+
+
+      return new User(updatedUser.id, updatedUser.name, updatedUser.email, updatedUser.password, updatedUser.roleId);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new Error('Email already exists');

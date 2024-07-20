@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { JwtService } from '../infrastructure/services/JwtService';
+
 
 import { CreateUserUseCase } from '../application/usecases/User/CreateUserUseCase';
 import { DeleteUserUseCase } from '../application/usecases/User/DeleteUserUseCase';
@@ -34,12 +36,16 @@ const prisma = new PrismaClient({
 const postRepository = new PrismaPostRepository(prisma);
 const userRepository = new PrismaUserRepository(prisma);
 
+// Services
+const jwtService = new JwtService();
+
+
 // Use cases
 const getUserUseCase = new GetUserUseCase(userRepository);
 const createUserUseCase = new CreateUserUseCase(userRepository);
 const updateUserUseCase = new UpdateUserUseCase(userRepository);
 const deleteUserUseCase = new DeleteUserUseCase(userRepository);
-const signInUseCase = new SignInUseCase(userRepository)
+const signInUseCase = new SignInUseCase(userRepository, jwtService)
 const signUpUseCase = new SignUpUseCase(userRepository)
 const createAdminUseCase = new CreateAdminUseCase(userRepository)
 
@@ -91,5 +97,8 @@ export const container = {
     userController,
     postController,
     webSocketController
+  },
+  services: {
+    jwtService
   }
 };

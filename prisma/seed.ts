@@ -1,8 +1,15 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
+const saltRounds = 10; // Number of salt rounds for bcrypt
 
 async function main() {
+    await prisma.$executeRaw`TRUNCATE TABLE "Post" RESTART IDENTITY CASCADE;`;
+    await prisma.$executeRaw`TRUNCATE TABLE "User" RESTART IDENTITY CASCADE;`;
+    await prisma.$executeRaw`TRUNCATE TABLE "Permission" RESTART IDENTITY CASCADE;`;
+    await prisma.$executeRaw`TRUNCATE TABLE "Role" RESTART IDENTITY CASCADE;`;
+
     // Create Roles
     const adminRole = await prisma.role.upsert({
         where: { name: 'ADMIN' },
@@ -45,12 +52,16 @@ async function main() {
         },
     });
 
+    // Hash passwords
+    const hashedAdminPassword = await bcrypt.hash('adminpassword', saltRounds);
+    const hashedUserPassword = await bcrypt.hash('userpassword', saltRounds);
+
     // Create Users and assign Roles
     const adminUser = await prisma.user.create({
         data: {
             name: 'Admin User',
             email: 'admin@example.com',
-            password: 'adminpassword',
+            password: hashedAdminPassword,
             role: { connect: { id: adminRole.id } },
         },
     });
@@ -59,7 +70,7 @@ async function main() {
         data: {
             name: 'Regular User',
             email: 'user@example.com',
-            password: 'userpassword',
+            password: hashedUserPassword,
             role: { connect: { id: userRole.id } },
         },
     });

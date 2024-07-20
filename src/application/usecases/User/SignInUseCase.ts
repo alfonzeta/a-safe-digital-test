@@ -1,20 +1,22 @@
-import { User } from '../../../domain/User';
 import { UserRepository } from '../../../domain/UserRepository';
+import { IJwtService } from '../../../domain/JwtRepository';
 
-class SignInUseCase {
-    constructor(private readonly userRepository: UserRepository) { }
+export class SignInUseCase {
+    constructor(
+        private readonly userRepository: UserRepository,
+        private readonly jwtService: IJwtService
+    ) { }
 
-    public async execute(email: string, password: string): Promise<User | null> {
+    public async execute(email: string, password: string): Promise<{ user: any, token: string } | null> {
         const user = await this.userRepository.findByEmail(email);
-        if (!user) return null;
+        if (!user || user.id === null) return null;
 
-        // Validate the password
         const isPasswordValid = await this.userRepository.validatePassword(email, password);
         if (!isPasswordValid) return null;
 
-        return user;
+
+        const token = this.jwtService.generateToken(user as { id: number, email: string, roleId: number });
+        return { user, token };
     }
 
 }
-
-export { SignInUseCase };

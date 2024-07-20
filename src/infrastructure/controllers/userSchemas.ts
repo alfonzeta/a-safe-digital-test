@@ -15,6 +15,7 @@ export const getUserSchema = {
                 id: { type: 'integer' },
                 name: { type: 'string' },
                 email: { type: 'string' },
+                roleId: { type: 'number' },
             },
         },
         404: {
@@ -79,10 +80,11 @@ export const updateUserSchema = {
     },
     body: {
         type: 'object',
-        required: ['name', 'email'],
         properties: {
             name: { type: 'string' },
             email: { type: 'string', format: 'email' },
+            password: { type: 'string' },
+            roleId: { type: 'number' }
         },
     },
     response: {
@@ -92,6 +94,7 @@ export const updateUserSchema = {
                 id: { type: 'integer' },
                 name: { type: 'string' },
                 email: { type: 'string' },
+                roleId: { type: 'number' }
             },
         },
     },

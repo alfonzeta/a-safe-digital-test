@@ -1,5 +1,3 @@
-// UserController.ts
-
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { CreateUserUseCase } from '../../application/usecases/User/CreateUserUseCase';
 import { DeleteUserUseCase } from '../../application/usecases/User/DeleteUserUseCase';
@@ -34,6 +32,7 @@ export class UserController {
                 reply.code(404).send({ error: 'User not found' });
                 return;
             }
+
             reply.send(user);
         } catch (error) {
             reply.code(500).send({ error: 'Internal Server Error' });
@@ -43,7 +42,6 @@ export class UserController {
     async createUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
-            console.log(roleId);
 
             // Validation is handled by the schema, so no need to check for password here
 
@@ -52,7 +50,7 @@ export class UserController {
                 reply.code(400).send({ error: 'Email already exists' });
                 return;
             }
-            const createdUser = await this.signUpUseCase.execute(name, email, password, roleId);
+            const createdUser = await this.signUpUseCase.execute(name, email, password, 2);
 
             reply.code(201).send(createdUser);
         } catch (error) {
@@ -75,7 +73,6 @@ export class UserController {
     async createAdmin(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
-            console.log(roleId);
 
             // Validation is handled by the schema, so no need to check for password here
 
@@ -106,11 +103,13 @@ export class UserController {
 
     async updateUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
-            const params = request.params as Params;
+            const params = request.params as { id: string };
             const userId = parseInt(params.id, 10);
-            const { name, email } = request.body as { name: string; email: string };
+            const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
 
-            const updatedUser = await this.updateUserUseCase.execute(userId, name, email);
+
+            const updatedUser = await this.updateUserUseCase.execute(userId, name, email, password, roleId);
+
             if (!updatedUser) {
                 reply.code(404).send({ error: 'User not found' });
                 return;
@@ -152,7 +151,10 @@ export class UserController {
                 reply.code(401).send({ error: 'Invalid email or password' });
                 return;
             }
-            reply.send(user);
+
+            reply.send(user.token);
+
+
         } catch (error) {
             reply.code(500).send({ error: 'Internal Server Error' });
         }

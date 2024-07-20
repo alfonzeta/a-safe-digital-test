@@ -2,9 +2,9 @@ import { User } from '../../../domain/User';
 import { UserRepository } from '../../../domain/UserRepository';
 
 class UpdateUserUseCase {
-    constructor(private readonly userRepository: UserRepository) {}
+    constructor(private readonly userRepository: UserRepository) { }
 
-    public async execute(userId: number, name: string, email: string): Promise<User | null> {
+    public async execute(userId: number, name: string, email: string, password: string, roleId: number): Promise<User | null> {
         try {
             const existingUser = await this.userRepository.findById(userId);
 
@@ -14,6 +14,8 @@ class UpdateUserUseCase {
 
             existingUser.name = name;
             existingUser.email = email;
+            existingUser.password = password;
+            existingUser.roleId = roleId;
 
             const updatedUser = await this.userRepository.update(existingUser);
 
