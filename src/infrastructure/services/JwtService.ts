@@ -9,9 +9,9 @@ export class JwtService {
         this.expiresIn = '1h'; // Token expiration time
     }
 
-    public generateToken(user: { id: number, email: string, roleId: number }): string {
+    public generateToken(user: { id: number, email: string, roleId: number, name: string }): string {
 
-        const payload = { id: user.id, email: user.email, roleId: user.roleId };
+        const payload = { id: user.id, email: user.email, roleId: user.roleId, name: user.name };
         return jwt.sign(payload, this.secret, { expiresIn: this.expiresIn });
     }
 

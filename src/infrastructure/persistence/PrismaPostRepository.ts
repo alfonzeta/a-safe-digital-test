@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { Post } from "../../domain/Post";
 import { PostRepository } from "../../domain/PostRepository";
+import { log } from 'console';
 
 export class PrismaPostRepository implements PostRepository {
     constructor(private prisma: PrismaClient) { }
@@ -17,6 +18,7 @@ export class PrismaPostRepository implements PostRepository {
             });
             return new Post(createdPost.id, createdPost.title, createdPost.content, createdPost.createdAt, createdPost.userId);
         } catch (error) {
+
             if (error instanceof Prisma.PrismaClientKnownRequestError) {
                 if (error.code === 'P2002') {
                     throw new Error('Post already exists with the same unique identifier');

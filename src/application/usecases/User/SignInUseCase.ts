@@ -15,7 +15,7 @@ export class SignInUseCase {
         if (!isPasswordValid) return null;
 
 
-        const token = this.jwtService.generateToken(user as { id: number, email: string, roleId: number });
+        const token = this.jwtService.generateToken(user as { id: number, email: string, roleId: number, name: string });
         return { user, token };
     }
 

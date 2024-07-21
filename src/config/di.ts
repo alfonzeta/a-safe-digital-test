@@ -64,7 +64,6 @@ const postController = new PostController(
 );
 const userController = new UserController(
   getUserUseCase,
-  createUserUseCase,
   updateUserUseCase,
   deleteUserUseCase,
   signInUseCase,

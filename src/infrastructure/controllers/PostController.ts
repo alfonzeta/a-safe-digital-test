@@ -10,11 +10,12 @@ export class PostController {
         private readonly deletePostUseCase: DeletePostUseCase,
         private readonly getPostUseCase: GetPostUseCase,
         private readonly updatePostUseCase: UpdatePostUseCase
-    ) {}
+    ) { }
 
     async createPost(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const { title, content, userId } = request.body as { title: string; content: string; userId: number };
+
             const createdPost = await this.createPostUseCase.execute(title, content, userId);
             reply.code(201).send(createdPost);
         } catch (error) {
