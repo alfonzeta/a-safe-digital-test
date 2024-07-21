@@ -1,24 +1,21 @@
 import { FastifyInstance } from 'fastify';
-import { createUserSchema, deleteUserSchema, getUserSchema, updateUserSchema, signInSchema, uploadProfilePictureSchema } from '../infrastructure/controllers/userSchemas';
+import { createUserSchema, deleteUserSchema, getUserSchema, updateUserSchema, signInSchema, createAdminSchema, uploadProfilePictureSchema } from '../infrastructure/controllers/userSchemas';
 import { createPostSchema, deletePostSchema, getPostSchema, updatePostSchema } from '../infrastructure/controllers/postSchemas';
 import { authMiddleware } from '../infrastructure/middleware/authMiddleware';
 import { container } from './di';
 
-export const registerRoutes = (fastify: FastifyInstance) => {
+export default async function registerRoutes(fastify: FastifyInstance) {
   const { userController, postController, webSocketController } = container.controllers;
 
   // Open User routes
   fastify.get<{ Params: { id: string } }>('/users/:id', { schema: getUserSchema }, (request, reply) => userController.getUser(request, reply));
-  fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup', { schema: createUserSchema }, (request, reply) => userController.createUser(request, reply));
-  fastify.post<{ Body: { name: string, email: string, password: string } }>('/users', { schema: createUserSchema }, (request, reply) => userController.createUser(request, reply));
   fastify.post<{ Body: { email: string, password: string } }>('/users/signin', { schema: signInSchema }, (request, reply) => userController.signIn(request, reply));
+  fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup', { schema: createUserSchema }, (request, reply) => userController.createUser(request, reply));
   // Private User routes
   fastify.post<{ Body: { picture: any } }>('/users/profile-picture', { preHandler: authMiddleware(1), schema: uploadProfilePictureSchema }, (request, reply) => userController.uploadProfilePicture(request, reply));
   fastify.get<{ Body: { picture: any } }>('/users/profile-picture', { preHandler: authMiddleware(1) }, (request, reply) => userController.getProfilePicture(request, reply));
-
-  fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup/admin', { preHandler: authMiddleware(1), schema: createUserSchema }, (request, reply) => userController.createAdmin(request, reply));
   fastify.put<{ Params: { id: string }, Body: { name: string, email: string, password?: string } }>('/users/:id', { preHandler: authMiddleware(1), schema: updateUserSchema }, (request, reply) => userController.updateUser(request, reply));
-
+  fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup/admin', { preHandler: authMiddleware(1), schema: createAdminSchema }, (request, reply) => userController.createAdmin(request, reply));
   fastify.delete<{ Params: { id: string } }>('/users/:id', { preHandler: authMiddleware(1), schema: deleteUserSchema }, (request, reply) => userController.deleteUser(request, reply));
 
   // Open post routes

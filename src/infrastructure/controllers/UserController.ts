@@ -1,31 +1,26 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { UserRepository } from '../../domain/UserRepository';
-import { User } from '../../domain/User';
-import { JwtService } from '../../infrastructure/services/JwtService';
 import { SignInUseCase } from '../../application/usecases/User/SignInUseCase';
 import { SignUpUseCase } from '../../application/usecases/User/SignUpUseCase';
 import { CreateAdminUseCase } from '../../application/usecases/User/CreateAdminUseCase';
 import { UpdateUserUseCase } from '../../application/usecases/User/UpdateUserUseCase';
 import { DeleteUserUseCase } from '../../application/usecases/User/DeleteUserUseCase';
 import { GetUserUseCase } from '../../application/usecases/User/GetUserUseCase';
-import { Readable } from 'stream';
-import fs from 'fs';
-import path from 'path';
-import { S3 } from 'aws-sdk';
-// src/config/ovh-config.ts
 import AWS from 'aws-sdk';
 
 AWS.config.update({
-    accessKeyId: "c022c8562fc14124a9f9f1c48ecc98af",
-    secretAccessKey: "3ce048e2370e4d71a1a1a1d74568b451",
+    accessKeyId: process.env.OVH_ACCESS_KEY,
+    secretAccessKey: process.env.OVH_SECRET_KEY,
     region: 'UK' // Or your OVH region
 });
 
+console.log(process.env.OVH_ACCESS_KEY)
+console.log(process.env.OVH_SECRET_KEY)
 const s3 = new AWS.S3({
     endpoint: new AWS.Endpoint('https://s3.uk.io.cloud.ovh.net/'), // OVH S3 endpoint
     s3ForcePathStyle: true, // Needed for OVH
 });
 
+const validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 
 
 interface Params {
@@ -61,12 +56,26 @@ export class UserController {
                 return;
             }
 
-            console.log("data: ", data);
+            // Check file size
+            // Check if the file was truncated
+            if (data.file.truncated) {
+                console.log(data.file.truncated);
+
+                reply.code(413).send({ error: 'File size exceeds the 500 KB limit' });
+                return;
+            }
+
+            if (!validImageTypes.includes(data.mimetype)) {
+                reply.code(415).send({ error: 'Unsupported Media Type' });
+                return;
+            }
+
+
 
             const { filename, file } = data;
             const filePath = `user${userId}`;
 
-            const bucketName = "mystorage0temp";
+            const bucketName = process.env.OVH_BUCKET_NAME;
             if (!bucketName) {
                 console.error('OVH_BUCKET_NAME is not defined');
                 reply.code(500).send({ error: 'Internal Server Error' });
@@ -171,12 +180,8 @@ export class UserController {
 
             // Validation is handled by the schema, so no need to check for password here
 
-
-            if (!email) {
-                reply.code(400).send({ error: 'Email already exists' });
-                return;
-            }
             const createdUser = await this.signUpUseCase.execute(name, email, password, 2);
+
 
             reply.code(201).send(createdUser);
         } catch (error) {
@@ -232,7 +237,6 @@ export class UserController {
             const params = request.params as { id: string };
             const userId = parseInt(params.id, 10);
             const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
-
 
             const updatedUser = await this.updateUserUseCase.execute(userId, name, email, password, roleId);
 
