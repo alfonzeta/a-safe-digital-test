@@ -22,7 +22,8 @@ const registerRoutes = (fastify) => {
     fastify.post('/users', { schema: userSchemas_1.createUserSchema }, (request, reply) => userController.createUser(request, reply));
     fastify.post('/users/signin', { schema: userSchemas_1.signInSchema }, (request, reply) => userController.signIn(request, reply));
     // Private User routes
-    fastify.post('/users/profile-picture', { preHandler: (0, authMiddleware_1.authMiddleware)(1) }, (request, reply) => userController.uploadProfilePicture(request, reply));
+    fastify.post('/users/profile-picture', { preHandler: (0, authMiddleware_1.authMiddleware)(1), schema: userSchemas_1.uploadProfilePictureSchema }, (request, reply) => userController.uploadProfilePicture(request, reply));
+    fastify.get('/users/profile-picture', { preHandler: (0, authMiddleware_1.authMiddleware)(1) }, (request, reply) => userController.getProfilePicture(request, reply));
     fastify.post('/users/signup/admin', { preHandler: (0, authMiddleware_1.authMiddleware)(1), schema: userSchemas_1.createUserSchema }, (request, reply) => userController.createAdmin(request, reply));
     fastify.put('/users/:id', { preHandler: (0, authMiddleware_1.authMiddleware)(1), schema: userSchemas_1.updateUserSchema }, (request, reply) => userController.updateUser(request, reply));
     fastify.delete('/users/:id', { preHandler: (0, authMiddleware_1.authMiddleware)(1), schema: userSchemas_1.deleteUserSchema }, (request, reply) => userController.deleteUser(request, reply));

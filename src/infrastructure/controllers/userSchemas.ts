@@ -150,3 +150,39 @@ export const signInSchema = {
         },
     },
 };
+
+export const uploadProfilePictureSchema = {
+    tags: ['User'],
+    summary: 'Upload a profile picture',
+    description: 'Endpoint to upload a profile picture for the user',
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+            },
+            required: ['message'],
+        },
+        400: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
+            },
+            required: ['error'],
+        },
+        401: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
+            },
+            required: ['error'],
+        },
+        500: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
+            },
+            required: ['error'],
+        },
+    },
+};

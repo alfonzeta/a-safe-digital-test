@@ -13,8 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
+// src/config/ovh-config.ts
+const aws_sdk_1 = __importDefault(require("aws-sdk"));
+aws_sdk_1.default.config.update({
+    accessKeyId: "c022c8562fc14124a9f9f1c48ecc98af",
+    secretAccessKey: "3ce048e2370e4d71a1a1a1d74568b451",
+    region: 'UK' // Or your OVH region
+});
+const s3 = new aws_sdk_1.default.S3({
+    endpoint: new aws_sdk_1.default.Endpoint('https://s3.uk.io.cloud.ovh.net/'), // OVH S3 endpoint
+    s3ForcePathStyle: true, // Needed for OVH
+});
 class UserController {
     constructor(getUserUseCase, updateUserUseCase, deleteUserUseCase, signInUseCase, signUpUseCase, createAdminUseCase) {
         this.getUserUseCase = getUserUseCase;
@@ -29,7 +38,7 @@ class UserController {
             var _a, _b;
             try {
                 const userId = (_a = request.user) === null || _a === void 0 ? void 0 : _a.id; // Assuming user ID is available in request.user
-                const userName = (_b = request.user) === null || _b === void 0 ? void 0 : _b.name; // Assuming user ID is available in request.user
+                const userName = (_b = request.user) === null || _b === void 0 ? void 0 : _b.name; // Assuming user name is available in request.user
                 if (!userId) {
                     reply.code(401).send({ error: 'Unauthorized' });
                     return;
@@ -42,27 +51,83 @@ class UserController {
                 }
                 console.log("data: ", data);
                 const { filename, file } = data;
-                const uploadDir = path_1.default.join(__dirname, '../../../src/uploads');
-                // Create directory if it doesn't exist
-                if (!fs_1.default.existsSync(uploadDir)) {
-                    console.log(`Creating directory at ${uploadDir}`);
-                    fs_1.default.mkdirSync(uploadDir, { recursive: true });
-                }
-                const filePath = path_1.default.join(uploadDir, `user${userId}_name_${userName}_profile_picture${path_1.default.extname(filename)}`);
-                console.log(`Saving file to ${filePath}`);
-                const writeStream = fs_1.default.createWriteStream(filePath);
-                file.pipe(writeStream);
-                writeStream.on('finish', () => __awaiter(this, void 0, void 0, function* () {
-                    console.log('File write finished');
-                    reply.send({ message: 'Profile picture uploaded successfully' });
-                }));
-                writeStream.on('error', (err) => {
-                    console.error('Error writing file:', err);
+                const filePath = `user${userId}`;
+                const bucketName = "mystorage0temp";
+                if (!bucketName) {
+                    console.error('OVH_BUCKET_NAME is not defined');
                     reply.code(500).send({ error: 'Internal Server Error' });
+                    return;
+                }
+                const params = {
+                    Bucket: bucketName,
+                    Key: filePath,
+                    Body: file,
+                    ContentType: data.mimetype,
+                };
+                // Use a promise to handle the S3 upload call
+                const uploadResult = yield new Promise((resolve, reject) => {
+                    s3.upload(params, (err, data) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve(data);
+                        }
+                    });
                 });
+                console.log('File uploaded successfully', uploadResult);
+                reply.send({ message: 'Profile picture uploaded successfully', location: uploadResult.Location });
             }
             catch (error) {
                 console.error('Error uploading profile picture:', error);
+                reply.code(500).send({ error: 'Internal Server Error' });
+            }
+        });
+    }
+    getProfilePicture(request, reply) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const userId = (_a = request.user) === null || _a === void 0 ? void 0 : _a.id;
+                if (!userId) {
+                    reply.code(401).send({ error: 'Unauthorized' });
+                    return;
+                }
+                const fileName = `user${userId}`; // File name should include extension if applicable
+                const bucketName = "mystorage0temp";
+                if (!bucketName) {
+                    console.error('OVH_BUCKET_NAME is not defined');
+                    reply.code(500).send({ error: 'Internal Server Error' });
+                    return;
+                }
+                const params = {
+                    Bucket: bucketName,
+                    Key: fileName,
+                };
+                // Use a promise to handle the S3 getObject call
+                const data = yield new Promise((resolve, reject) => {
+                    s3.getObject(params, (err, data) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve(data);
+                        }
+                    });
+                });
+                // Set the appropriate Content-Type header based on the file's content type
+                const contentType = data.ContentType || 'application/octet-stream';
+                reply.header('Content-Type', contentType);
+                // Stream the file data to the client
+                if (data.Body instanceof Buffer) {
+                    reply.send(data.Body);
+                }
+                else {
+                    reply.send(data.Body);
+                }
+            }
+            catch (error) {
+                console.error('Error getting profile picture:', error);
                 reply.code(500).send({ error: 'Internal Server Error' });
             }
         });

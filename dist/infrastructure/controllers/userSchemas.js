@@ -1,7 +1,7 @@
 "use strict";
 // src/schemas/userSchemas.ts
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signInSchema = exports.deleteUserSchema = exports.updateUserSchema = exports.createUserSchema = exports.getUserSchema = void 0;
+exports.uploadProfilePictureSchema = exports.signInSchema = exports.deleteUserSchema = exports.updateUserSchema = exports.createUserSchema = exports.getUserSchema = void 0;
 exports.getUserSchema = {
     params: {
         type: 'object',
@@ -143,6 +143,41 @@ exports.signInSchema = {
             properties: {
                 error: { type: 'string' },
             },
+        },
+    },
+};
+exports.uploadProfilePictureSchema = {
+    tags: ['User'],
+    summary: 'Upload a profile picture',
+    description: 'Endpoint to upload a profile picture for the user',
+    response: {
+        200: {
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+            },
+            required: ['message'],
+        },
+        400: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
+            },
+            required: ['error'],
+        },
+        401: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
+            },
+            required: ['error'],
+        },
+        500: {
+            type: 'object',
+            properties: {
+                error: { type: 'string' },
+            },
+            required: ['error'],
         },
     },
 };

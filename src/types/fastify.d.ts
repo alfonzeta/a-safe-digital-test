@@ -9,5 +9,7 @@ declare module 'fastify' {
             name: string;
         };
     }
-
+    export interface GetProfilePictureQuery {
+        filename?: string; // Ensure this matches what you expect from your query string
+    }
 }
