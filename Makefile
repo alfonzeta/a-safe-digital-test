@@ -1,34 +1,21 @@
-.DEFAULT_GOAL := dev
+YOUR_DOCKERHUB_USER=alfonsoz
 
-DOCKER_COMPOSE = docker compose
-DOCKER = docker
+.PHONY: all backend_dig  clean
 
-build:
-	@echo "Building the app..."
-	@$(DOCKER_COMPOSE) build
+all:  backend_dig
 
-dev: 
-	@echo "Starting app in development mode..."
-	@$(DOCKER_COMPOSE) down
-	@$(DOCKER_COMPOSE) up --build
+backend_dig:
+	@echo "Building backend..."
+	docker build -t $(YOUR_DOCKERHUB_USER)/backend_dig:latest backend_dig/
 
-down:
-	@echo "Stopping Docker containers..."
-	@$(DOCKER_COMPOSE) down
+dev: all
+	docker compose up
 
-install:
-	@echo "Installing dependencies..."
-	@$(NPM) install
+deploy: all
+	docker push $(YOUR_DOCKERHUB_USER)/backend_dig:latest
 
-clean:
-	@echo "Cleaning up..."
-	@$(DOCKER_COMPOSE) down --rmi all
+	@echo "Deploying to server..."
+	@ssh debian@51.254.97.250 -p 55912 "/home/debian/digital/update_and_restart.sh"
 
-bash:
-	@echo "Starting bash..."
-	@$(DOCKER_COMPOSE) exec backend bash
 
-sync:
-	@$(DOCKER_COMPOSE) exec backend npm run build
-
-.PHONY: build dev down install clean bash
+	

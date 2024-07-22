@@ -1,6 +1,6 @@
-import { CreatePostUseCase } from './CreatePostUseCase';
-import { PostRepository } from '../../../domain/PostRepository';
-import { Post } from '../../../domain/Post';
+import { CreatePostUseCase } from '../CreatePostUseCase';
+import { PostRepository } from '../../../../domain/PostRepository';
+import { Post } from '../../../../domain/Post';
 
 describe('CreatePostUseCase', () => {
     let createPostUseCase: CreatePostUseCase;

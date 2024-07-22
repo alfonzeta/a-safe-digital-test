@@ -26,8 +26,7 @@ import { PrismaUserRepository } from '../infrastructure/persistence/PrismaUserRe
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: "postgres://postgres:password@localhost:5432/mydatabase"
-      // url: process.env.DATABASE_URL,
+      url: process.env.DATABASE_URL
     },
   },
 });

@@ -10,11 +10,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-console.log(process.env.SECRET_KEY);
-
-
-
-
 const server = fastify();
 
 server.register(fastifySwagger, {
@@ -49,6 +44,16 @@ server.register(fastifySwaggerUi, {
     }
 });
 
+// Custom middleware to set CSP for Swagger UI
+server.addHook('onSend', async (request, reply) => {
+    // Check if the URL is defined and starts with `/documentation`
+    const url = request.raw.url;
+    if (url && url.startsWith('/documentation')) {
+        reply.header('Content-Security-Policy',
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; frame-ancestors 'none';");
+    }
+});
+
 server.register(websocketPlugin);
 server.register(async function (fastify) {
     fastify.get('/ws', { websocket: true }, (socket, req) => { });
@@ -65,7 +70,7 @@ server.register(multipart, {
 // registerRoutes(server);
 server.register(registerRoutes)
 
-server.listen(8080, "0.0.0.0", async (err, address) => {
+server.listen({ port: 8080, host: '0.0.0.0' }, async (err, address) => {
     if (err) {
         console.error(err);
         process.exit(1);

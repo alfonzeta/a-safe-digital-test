@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "prisma:generate": "prisma generate",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "seed": "ts-node ./prisma/seed.ts"
