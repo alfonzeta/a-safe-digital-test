@@ -160,7 +160,13 @@ export class UserController {
     async getUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const params = request.params as Params;
+            const idPattern = /^[0-9]+$/;
+            if (!idPattern.test(params.id)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+
+            }
             const userId = parseInt(params.id, 10);
+
 
             const user = await this.getUserUseCase.execute(userId);
             if (!user) {
@@ -235,6 +241,11 @@ export class UserController {
     async updateUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const params = request.params as { id: string };
+            const idPattern = /^[0-9]+$/;
+            if (!idPattern.test(params.id)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+
+            }
             const userId = parseInt(params.id, 10);
             const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
 
@@ -257,6 +268,11 @@ export class UserController {
     async deleteUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const params = request.params as Params;
+            const idPattern = /^[0-9]+$/;
+            if (!idPattern.test(params.id)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+
+            }
             const userId = parseInt(params.id, 10);
             const success = await this.deleteUserUseCase.execute(userId);
             if (!success) {

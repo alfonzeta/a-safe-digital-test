@@ -19,11 +19,11 @@ export default async function registerRoutes(fastify: FastifyInstance) {
   fastify.delete<{ Params: { id: string } }>('/users/:id', { preHandler: authMiddleware(1), schema: deleteUserSchema }, (request, reply) => userController.deleteUser(request, reply));
 
   // Open post routes
-  fastify.get<{ Params: { id: string } }>('/posts/:id', async (request, reply) => postController.getPost(request, reply));
+  fastify.get<{ Params: { id: string } }>('/posts/:id', { schema: getPostSchema }, async (request, reply) => postController.getPost(request, reply));
   fastify.post<{ Body: { title: string, content: string, userId: number } }>('/posts', { schema: createPostSchema }, async (request, reply) => postController.createPost(request, reply));
   // Private post routes
   fastify.put<{ Params: { id: string }, Body: { title: string, content: string } }>('/posts/:id', { preHandler: authMiddleware(1), schema: updatePostSchema }, async (request, reply) => postController.updatePost(request, reply));
-  fastify.delete<{ Params: { id: string } }>('/posts/:id', { preHandler: authMiddleware(1) }, async (request, reply) => postController.deletePost(request, reply));
+  fastify.delete<{ Params: { id: string } }>('/posts/:id', { preHandler: authMiddleware(1), schema: deletePostSchema }, async (request, reply) => postController.deletePost(request, reply));
 
   webSocketController.setup(fastify);
 };

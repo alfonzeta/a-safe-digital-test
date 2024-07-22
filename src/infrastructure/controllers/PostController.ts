@@ -26,6 +26,11 @@ export class PostController {
     async deletePost(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const params = request.params as { id: string };
+            const idPattern = /^[0-9]+$/;
+            if (!idPattern.test(params.id)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+
+            }
             const postId = parseInt(params.id, 10);
             await this.deletePostUseCase.execute(postId);
             reply.code(204).send();
@@ -41,6 +46,11 @@ export class PostController {
     async getPost(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const params = request.params as { id: string };
+            const idPattern = /^[0-9]+$/;
+            if (!idPattern.test(params.id)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+
+            }
             const postId = parseInt(params.id, 10);
             const post = await this.getPostUseCase.execute(postId);
             if (!post) {
@@ -51,7 +61,8 @@ export class PostController {
                 id: post.id,
                 title: post.title,
                 content: post.content,
-                userId: post.userId
+                userId: post.userId,
+                createdAt: post.createdAt
             });
         } catch (error) {
             reply.code(500).send({ error: 'Internal Server Error' });
@@ -61,6 +72,11 @@ export class PostController {
     async updatePost(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const params = request.params as { id: string };
+            const idPattern = /^[0-9]+$/;
+            if (!idPattern.test(params.id)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+
+            }
             const postId = parseInt(params.id, 10);
             const { title, content } = request.body as { title: string; content: string };
             const updatedPost = await this.updatePostUseCase.execute(postId, title, content);

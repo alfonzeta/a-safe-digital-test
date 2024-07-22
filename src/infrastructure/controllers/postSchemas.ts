@@ -1,13 +1,20 @@
 // src/schemas/postSchemas.ts
 
 export const getPostSchema = {
-    params: {
-        type: 'object',
-        required: ['id'],
-        properties: {
-            id: { type: 'string', pattern: '^[0-9]+$' } // Ensure id is a string of digits
-        }
-    },
+    tags: ['Post'],
+    summary: 'Get Post by ID',
+    parameters: [
+        {
+            name: 'id',
+            in: 'path',
+            pattern: '^[0-9]+$',
+            required: true,
+            schema: {
+                type: 'string',
+                pattern: '^[0-9]+$',
+            },
+        },
+    ],
     response: {
         200: {
             type: 'object',
@@ -16,7 +23,7 @@ export const getPostSchema = {
                 title: { type: 'string' },
                 content: { type: 'string' },
                 userId: { type: 'integer' },
-                createdAt: { type: 'string', format: 'date-time' } // Include createdAt if needed
+                createdAt: { type: 'string', format: 'date-time' }
             },
             required: ['id', 'title', 'content', 'userId', 'createdAt']
         },
@@ -31,6 +38,8 @@ export const getPostSchema = {
 };
 
 export const createPostSchema = {
+    tags: ['Post'],
+    summary: 'Create Post - Must include existent userId',
     body: {
         type: 'object',
         required: ['title', 'content', 'userId'],
@@ -72,9 +81,10 @@ export const createPostSchema = {
     },
 };
 
-
 export const updatePostSchema = {
-    params: {
+    tags: ['Post'],
+    summary: 'Update Post by ID',
+    parameters: {
         type: 'object',
         required: ['id'],
         properties: {
@@ -123,10 +133,24 @@ export const updatePostSchema = {
             },
             required: ['error']
         },
+    }, security: [
+        {
+            BearerAuth: [],
+        },
+    ],
+    components: {
+        securitySchemes: {
+            BearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            },
+        },
     },
 };
-
 export const deletePostSchema = {
+    tags: ['Post'],
+    summary: 'Delete Post by ID',
     params: {
         type: 'object',
         required: ['id'],
@@ -151,6 +175,19 @@ export const deletePostSchema = {
                 error: { type: 'string' },
             },
             required: ['error']
+        },
+    }, security: [
+        {
+            BearerAuth: [],
+        },
+    ],
+    components: {
+        securitySchemes: {
+            BearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            },
         },
     },
 };

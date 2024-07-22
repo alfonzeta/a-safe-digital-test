@@ -6,6 +6,7 @@ class GetUserUseCase {
 
     public async execute(userId: number): Promise<User | null> {
         try {
+
             const user = await this.userRepository.findById(userId);
 
 

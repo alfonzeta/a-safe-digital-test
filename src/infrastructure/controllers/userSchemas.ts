@@ -1,6 +1,5 @@
 // src/schemas/userSchemas.ts
 
-import { format } from "path";
 
 export const getUserSchema = {
     tags: ['User'],
@@ -399,6 +398,12 @@ export const uploadProfilePictureSchema = {
                 schema: {
                     type: 'object',
                     properties: {
+                        upload_file: {
+                            type: "string",
+                            format: "binary",
+                            title: "upload file",
+                            description: "alsapfealpfae"
+                        },
                         picture: {
                             type: 'string',
                             format: 'binary',
