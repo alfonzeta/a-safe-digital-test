@@ -6,6 +6,10 @@ class UpdateUserUseCase {
 
     public async execute(userId: number, name: string, email: string, password: string, roleId: number): Promise<User | null> {
         try {
+            if (typeof userId !== 'number' || userId <= 0 || !Number.isInteger(userId)) {
+                console.error('Invalid ID format:', userId);
+                return null;
+            }
             const existingUser = await this.userRepository.findById(userId);
 
             if (!existingUser) {

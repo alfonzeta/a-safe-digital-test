@@ -5,10 +5,14 @@ class GetUserUseCase {
     constructor(private readonly userRepository: UserRepository) { }
 
     public async execute(userId: number): Promise<User | null> {
+        // Validate userId
+        if (typeof userId !== 'number' || userId <= 0 || !Number.isInteger(userId)) {
+            console.error('Invalid ID format:', userId);
+            return null;
+        }
+
         try {
-
             const user = await this.userRepository.findById(userId);
-
 
             if (!user) {
                 return null;

@@ -22,7 +22,7 @@ export class PrismaUserRepository implements UserRepository {
       return new User(createdUser.id, createdUser.name, createdUser.email, createdUser.password, createdUser.roleId);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new Error('Email already exists2');
+        throw new Error('Email already exists');
       }
       throw error;
     }
@@ -68,7 +68,6 @@ export class PrismaUserRepository implements UserRepository {
         data: updateData,
       });
 
-
       return new User(updatedUser.id, updatedUser.name, updatedUser.email, updatedUser.password, updatedUser.roleId);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
@@ -77,7 +76,6 @@ export class PrismaUserRepository implements UserRepository {
       throw error;
     }
   }
-
 
   async delete(id: number): Promise<void> {
     try {
@@ -97,9 +95,26 @@ export class PrismaUserRepository implements UserRepository {
 
   async validatePassword(email: string, password: string): Promise<boolean> {
     const user = await this.findByEmail(email);
-
     if (!user || !user.password) return false;
-    const isMatch = await bcrypt.compare(password, user.password);
-    return isMatch;
+
+    // Check if the password is in a likely hashed format
+    const isProbablyHashed = user.password.length === 60 && user.password.startsWith('$2');
+
+    if (isProbablyHashed) {
+      // Compare using bcrypt if it's probably hashed
+      const isMatch = await bcrypt.compare(password, user.password);
+      return isMatch;
+    } else {
+      // Direct comparison if it's not hashed
+      const isMatch = password === user.password;
+
+      if (isMatch) {
+        // If the plain text password matches, hash it and update the user's record (FOR PLAIN TEXT PASSOWRD FROM SEEDING DATABASE)
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+        await this.update({ ...user, password: hashedPassword }); // Update password
+      }
+
+      return isMatch;
+    }
   }
 }

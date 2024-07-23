@@ -1,9 +1,12 @@
 import { PostRepository } from '../../../domain/PostRepository';
 
 class DeletePostUseCase {
-    constructor(private readonly postRepository: PostRepository) {}
+    constructor(private readonly postRepository: PostRepository) { }
 
     public async execute(postId: number): Promise<void> {
+        if (typeof postId !== 'number' || postId <= 0 || !Number.isInteger(postId)) {
+            throw new Error('Invalid post ID');
+        }
         try {
             await this.postRepository.delete(postId);
         } catch (error) {

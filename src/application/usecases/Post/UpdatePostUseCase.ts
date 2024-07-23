@@ -2,9 +2,14 @@ import { Post } from '../../../domain/Post';
 import { PostRepository } from '../../../domain/PostRepository';
 
 class UpdatePostUseCase {
-    constructor(private readonly postRepository: PostRepository) {}
+    constructor(private readonly postRepository: PostRepository) { }
 
     public async execute(postId: number, title: string, content: string): Promise<Post | null> {
+        if (typeof postId !== 'number' || postId <= 0 || !Number.isInteger(postId)) {
+            console.error('Invalid ID format:', postId);
+            return null;
+        }
+
         try {
             const existingPost = await this.postRepository.findById(postId);
 

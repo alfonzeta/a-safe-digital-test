@@ -5,12 +5,18 @@ import { User } from '../../../../domain/User';
 describe('GetUserUseCase', () => {
     let getUserUseCase: GetUserUseCase;
     let userRepository: UserRepository;
+    let consoleSpy: jest.SpyInstance;
 
     beforeEach(() => {
         userRepository = {
             findById: jest.fn(),
         } as unknown as UserRepository;
         getUserUseCase = new GetUserUseCase(userRepository);
+        consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+    });
+
+    afterEach(() => {
+        consoleSpy.mockRestore(); // Restore console.error after each test
     });
 
     it('should return a user successfully if the user exists', async () => {
@@ -30,12 +36,23 @@ describe('GetUserUseCase', () => {
         expect(userRepository.findById).toHaveBeenCalledWith(2);
     });
 
-    it('should handle errors and return null', async () => {
-        (userRepository.findById as jest.Mock).mockRejectedValue(new Error('Database error'));
+    it('should return null and log an error if the id does not match /^[0-9]+$/', async () => {
+        const invalidIds = [-1, NaN, 1.23];
 
-        const result = await getUserUseCase.execute(3);
-        expect(result).toBeNull();
-        expect(userRepository.findById).toHaveBeenCalledWith(3);
+        for (const invalidId of invalidIds) {
+            await getUserUseCase.execute(invalidId as any);
+            expect(console.error).toHaveBeenCalledWith('Invalid ID format:', invalidId);
+        }
     });
 
+
+
+    it('should log an error if there is an exception thrown by the repository', async () => {
+        const error = new Error('Repository error');
+        (userRepository.findById as jest.Mock).mockRejectedValue(error);
+
+        const result = await getUserUseCase.execute(1);
+        expect(result).toBeNull();
+        expect(console.error).toHaveBeenCalledWith('Error retrieving user:', error);
+    });
 });

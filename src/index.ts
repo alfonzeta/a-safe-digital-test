@@ -62,7 +62,7 @@ server.register(async function (fastify) {
 // Private User routes
 server.register(multipart, {
     limits: {
-        fileSize: 500 * 1024, // 500 KB
+        fileSize: 100 * 1024, // 100 KB
     },
 });
 

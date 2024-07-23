@@ -10,13 +10,8 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-
 # Copy the rest of the application code
 COPY . .
-
-# Generate Prisma Client
-RUN npm run prisma:generate
-
 
 # Build the application (if using TypeScript)
 RUN npm run build
@@ -38,6 +33,9 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/prisma ./prisma
 
+# Copy the entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+
 # Install production dependencies
 RUN npm install --only=production
 
@@ -50,5 +48,10 @@ USER testuser
 # Expose the port the app runs on
 EXPOSE 8080
 
-# Command to start the application
+
+# Set the entrypoint script
+# dev
+# ENTRYPOINT ["/app/entrypoint.sh"]
+
+# prod
 CMD ["npm", "start"]

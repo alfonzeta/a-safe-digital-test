@@ -6,6 +6,9 @@ import { UpdateUserUseCase } from '../../application/usecases/User/UpdateUserUse
 import { DeleteUserUseCase } from '../../application/usecases/User/DeleteUserUseCase';
 import { GetUserUseCase } from '../../application/usecases/User/GetUserUseCase';
 import AWS from 'aws-sdk';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 AWS.config.update({
     accessKeyId: process.env.OVH_ACCESS_KEY,
@@ -13,8 +16,6 @@ AWS.config.update({
     region: 'UK' // Or your OVH region
 });
 
-console.log(process.env.OVH_ACCESS_KEY)
-console.log(process.env.OVH_SECRET_KEY)
 const s3 = new AWS.S3({
     endpoint: new AWS.Endpoint('https://s3.uk.io.cloud.ovh.net/'), // OVH S3 endpoint
     s3ForcePathStyle: true, // Needed for OVH
@@ -36,7 +37,6 @@ export class UserController {
         private readonly signUpUseCase: SignUpUseCase,
         private readonly createAdminUseCase: CreateAdminUseCase
     ) { }
-
 
     async uploadProfilePicture(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
@@ -148,7 +148,7 @@ export class UserController {
 
             // Stream the file data to the client
             if (data.Body instanceof Buffer) {
-                reply.send(data.Body);
+                reply.code(200).send(data.Body);
             } else {
                 reply.send(data.Body);
             }
@@ -157,24 +157,70 @@ export class UserController {
             reply.code(500).send({ error: 'Internal Server Error' });
         }
     }
-    async getUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+
+
+
+    async updateUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+        try {
+            const params = request.params as { id: string };
+            const idPattern = /^[0-9]+$/;
+            if (!idPattern.test(params.id)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
+            }
+            const userId = parseInt(params.id, 10);
+            const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
+
+            const updatedUser = await this.updateUserUseCase.execute(userId, name, email, password, roleId);
+
+            if (!updatedUser) {
+                reply.code(404).send({ error: 'User not found' });
+                return;
+            }
+            reply.code(200).send(updatedUser); // Ensure code(200) is called here
+        } catch (error) {
+            if (error instanceof Error && error.message === 'Email already exists') {
+                reply.code(400).send({ error: 'Email already exists' });
+            } else {
+                reply.code(500).send({ error: 'Internal Server Error' });
+            }
+        }
+    }
+
+    async deleteUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
         try {
             const params = request.params as Params;
             const idPattern = /^[0-9]+$/;
             if (!idPattern.test(params.id)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
+            }
 
+            const userId = parseInt(params.id, 10);
+            const success = await this.deleteUserUseCase.execute(userId);
+            if (!success) {
+                return reply.code(404).send({ error: 'User not found' });
+            }
+
+            reply.code(204).send(); // 204 should not include a body
+        } catch (error) {
+            reply.code(500).send({ error: 'Internal Server Error' });
+        }
+    }
+
+    async getUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+        try {
+            const params = request.params as Params;
+            const idPattern = /^[0-9]+$/;
+            if (!idPattern.test(params.id)) {
+                reply.code(400).send({ error: 'Invalid user ID format' });
+                return;
             }
             const userId = parseInt(params.id, 10);
-
-
             const user = await this.getUserUseCase.execute(userId);
             if (!user) {
                 reply.code(404).send({ error: 'User not found' });
                 return;
             }
-
-            reply.send(user);
+            reply.code(200).send(user); // Ensure code(200) is called here
         } catch (error) {
             reply.code(500).send({ error: 'Internal Server Error' });
         }
@@ -233,57 +279,6 @@ export class UserController {
                 }
             } else {
                 // Handle unexpected error types
-                reply.code(500).send({ error: 'Internal Server Error' });
-            }
-        }
-    }
-
-    async updateUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-        try {
-            const params = request.params as { id: string };
-            const idPattern = /^[0-9]+$/;
-            if (!idPattern.test(params.id)) {
-                return reply.code(400).send({ error: 'Invalid user ID format' });
-
-            }
-            const userId = parseInt(params.id, 10);
-            const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
-
-            const updatedUser = await this.updateUserUseCase.execute(userId, name, email, password, roleId);
-
-            if (!updatedUser) {
-                reply.code(404).send({ error: 'User not found' });
-                return;
-            }
-            reply.send(updatedUser);
-        } catch (error) {
-            if (error instanceof Error && error.message === 'Email already exists') {
-                reply.code(400).send({ error: 'Email already exists' });
-            } else {
-                reply.code(500).send({ error: 'Internal Server Error' });
-            }
-        }
-    }
-
-    async deleteUser(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-        try {
-            const params = request.params as Params;
-            const idPattern = /^[0-9]+$/;
-            if (!idPattern.test(params.id)) {
-                return reply.code(400).send({ error: 'Invalid user ID format' });
-
-            }
-            const userId = parseInt(params.id, 10);
-            const success = await this.deleteUserUseCase.execute(userId);
-            if (!success) {
-                reply.code(404).send({ error: 'User not found' });
-                return;
-            }
-            reply.code(204).send();
-        } catch (error) {
-            if (error instanceof Error && error.message === 'Internal Server Error') {
-                reply.code(500).send({ error: 'Internal Server Error' });
-            } else {
                 reply.code(500).send({ error: 'Internal Server Error' });
             }
         }

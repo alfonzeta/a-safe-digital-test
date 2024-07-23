@@ -1,9 +1,14 @@
 import { UserRepository } from '../../../domain/UserRepository';
 
 class DeleteUserUseCase {
-    constructor(private readonly userRepository: UserRepository) {}
+    constructor(private readonly userRepository: UserRepository) { }
 
-    public async execute(userId: number): Promise<boolean> {
+    public async execute(userId: number): Promise<boolean | null> {
+        if (typeof userId !== 'number' || userId <= 0 || !Number.isInteger(userId)) {
+            console.error('Invalid ID format:', userId);
+            return null;
+        }
+
         try {
             await this.userRepository.delete(userId);
             return true;
