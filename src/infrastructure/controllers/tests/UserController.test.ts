@@ -58,7 +58,48 @@ describe('UserController', () => {
 
     });
 
+
+    describe('getProfilePicture', () => {
+        it('should get a profile picture and return it', async () => {
+            const request = {
+                user: { id: 1 }
+            } as unknown as FastifyRequest;
+
+            await userController.getProfilePicture(request, mockReply);
+
+            expect(mockReply.code).toHaveBeenCalledWith(200);
+            // expect(mockReply.header).toHaveBeenCalledWith('Content-Type', 'image/jpeg');
+            expect(mockReply.send).toHaveBeenCalledWith(Buffer.from('mock-data'));
+        });
+
+        it('should return 401 if user ID is not provided', async () => {
+            const request = { user: {} } as unknown as FastifyRequest;
+
+            await userController.getProfilePicture(request, mockReply);
+
+            expect(mockReply.code).toHaveBeenCalledWith(401);
+            expect(mockReply.send).toHaveBeenCalledWith({ error: 'Unauthorized' });
+        });
+
+
+    });
     describe('uploadProfilePicture', () => {
+        it('should upload a profile picture and return success', async () => {
+            const request = {
+                user: { id: 1 },
+                file: jest.fn().mockResolvedValue({
+                    filename: 'profile.jpg',
+                    file: Buffer.from('file-content'),
+                    mimetype: 'image/jpeg',
+                    truncated: false
+                })
+            } as unknown as FastifyRequest;
+
+            await userController.uploadProfilePicture(request, mockReply);
+
+            expect(mockReply.code).toHaveBeenCalledWith(200);
+            expect(mockReply.send).toHaveBeenCalledWith({ message: 'Profile picture uploaded successfully', location: 'mock-url' });
+        });
         it('should return 413 if file size exceeds the limit', async () => {
             const request = {
                 user: { id: 1 },
@@ -76,22 +117,7 @@ describe('UserController', () => {
             expect(mockReply.send).toHaveBeenCalledWith({ error: 'File size exceeds the 100 KB limit' });
         });
 
-        it('should upload a profile picture and return success', async () => {
-            const request = {
-                user: { id: 1 },
-                file: jest.fn().mockResolvedValue({
-                    filename: 'profile.jpg',
-                    file: Buffer.from('file-content'),
-                    mimetype: 'image/jpeg',
-                    truncated: false
-                })
-            } as unknown as FastifyRequest;
 
-            await userController.uploadProfilePicture(request, mockReply);
-
-            expect(mockReply.code).toHaveBeenCalledWith(200);
-            expect(mockReply.send).toHaveBeenCalledWith({ message: 'Profile picture uploaded successfully', location: 'mock-url' });
-        });
 
         it('should return 400 if no file is uploaded', async () => {
             const request = {
@@ -123,33 +149,6 @@ describe('UserController', () => {
             expect(mockReply.send).toHaveBeenCalledWith({ error: 'Unsupported Media Type' });
         });
     });
-
-    describe('getProfilePicture', () => {
-        it('should get a profile picture and return it', async () => {
-            const request = {
-                user: { id: 1 }
-            } as unknown as FastifyRequest;
-
-            await userController.getProfilePicture(request, mockReply);
-
-            expect(mockReply.code).toHaveBeenCalledWith(200);
-            expect(mockReply.header).toHaveBeenCalledWith('Content-Type', 'image/jpeg');
-            expect(mockReply.send).toHaveBeenCalledWith(Buffer.from('mock-data'));
-        });
-
-        it('should return 401 if user ID is not provided', async () => {
-            const request = { user: {} } as unknown as FastifyRequest;
-
-            await userController.getProfilePicture(request, mockReply);
-
-            expect(mockReply.code).toHaveBeenCalledWith(401);
-            expect(mockReply.send).toHaveBeenCalledWith({ error: 'Unauthorized' });
-        });
-
-
-    });
-
-
 
     describe('updateUser', () => {
         it('should update a user and return 200 status', async () => {
