@@ -8,6 +8,7 @@ import { GetUserUseCase } from '../../application/usecases/User/GetUserUseCase';
 import AWS from 'aws-sdk';
 import dotenv from 'dotenv';
 
+
 dotenv.config();
 
 AWS.config.update({

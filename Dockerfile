@@ -48,10 +48,4 @@ USER testuser
 # Expose the port the app runs on
 EXPOSE 8080
 
-
-# Set the entrypoint script
-# dev
-# ENTRYPOINT ["/app/entrypoint.sh"]
-
-# prod
 CMD ["npm", "start"]

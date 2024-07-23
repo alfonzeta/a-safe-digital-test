@@ -5,7 +5,7 @@ services:
     container_name: node-backend
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     image: node-backend:latest
     ports:
       - 8080:8080
@@ -18,8 +18,7 @@ services:
     depends_on:
       - db
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - .:/app
 
   db:
     container_name: postgres-sql
