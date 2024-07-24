@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const server = fastify();
+export const wsClients: Set<any> = new Set(); // Set to keep track of WebSocket connections
 
 server.register(fastifySwagger, {
     openapi: {
@@ -53,10 +54,32 @@ server.addHook('onSend', async (request, reply) => {
 });
 
 server.register(websocketPlugin);
+// WebSocket route
 server.register(async function (fastify) {
-    fastify.get('/ws', { websocket: true }, (socket, req) => { });
-});
+    fastify.get('/*', { websocket: true }, (socket /* WebSocket */, req /* FastifyRequest */) => {
+        wsClients.add(socket); // Add new WebSocket connection to the set
 
+        socket.on('message', message => {
+            socket.send('hi from wildcard route');
+        });
+
+        socket.on('close', () => {
+            wsClients.delete(socket); // Remove connection when it closes
+        });
+    });
+
+    fastify.get('/', { websocket: true }, (socket /* WebSocket */, req /* FastifyRequest */) => {
+        wsClients.add(socket); // Add new WebSocket connection to the set
+
+        socket.on('message', message => {
+            socket.send('hi from server');
+        });
+
+        socket.on('close', () => {
+            wsClients.delete(socket); // Remove connection when it closes
+        });
+    });
+});
 server.register(multipart, {
     // attachFieldsToBody: true,
     limits: {

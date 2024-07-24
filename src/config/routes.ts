@@ -5,8 +5,7 @@ import { authMiddleware } from '../infrastructure/middleware/authMiddleware';
 import { container } from './di';
 
 export default async function registerRoutes(fastify: FastifyInstance) {
-  const { userController, postController, webSocketController } = container.controllers;
-
+  const { userController, postController } = container.controllers;
   // Open User routes
   fastify.get<{ Params: { id: string } }>('/users/:id', { schema: getUserSchema }, (request, reply) => userController.getUser(request, reply));
   fastify.post<{ Body: { email: string, password: string } }>('/users/signin', { schema: signInSchema }, (request, reply) => userController.signIn(request, reply));
@@ -25,5 +24,5 @@ export default async function registerRoutes(fastify: FastifyInstance) {
   fastify.put<{ Params: { id: string }, Body: { title: string, content: string } }>('/posts/:id', { preHandler: authMiddleware(1), schema: updatePostSchema }, async (request, reply) => postController.updatePost(request, reply));
   fastify.delete<{ Params: { id: string } }>('/posts/:id', { preHandler: authMiddleware(1), schema: deletePostSchema }, async (request, reply) => postController.deletePost(request, reply));
 
-  webSocketController.setup(fastify);
+
 };

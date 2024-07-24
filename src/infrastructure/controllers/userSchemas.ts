@@ -461,117 +461,113 @@ export const getProfilePictureSchema = {
     },
 };
 
-// export const uploadProfilePictureSchema = {
-//     "summary": "uploads an image",
-//     "description": "",
-//     "operationId": "uploadFile",
-//     "parameters": [
-//         {
-//             "name": "petId",
-//             "in": "path",
-//             "description": "ID of pet to update",
-//             "required": true,
-//             "schema": {
-//                 "type": "integer",
-//                 "format": "int64"
-//             }
-//         },
-//         {
-//             "name": "additionalMetadata",
-//             "in": "query",
-//             "description": "Additional Metadata",
-//             "required": false,
-//             "schema": {
-//                 "type": "string"
-//             }
-//         }
-//     ],
-//     "requestBody": {
-//         "content": {
-//             "application/octet-stream": {
-//                 "schema": {
-//                     "type": "string",
-//                     "format": "binary"
-//                 }
-//             }
-//         }
-//     },
-//     "responses": {
-//         "200": {
-//             "description": "successful operation",
-//             "content": {
-//                 "application/json": {
-//                     "schema": {
-//                         "$ref": "#/components/schemas/ApiResponse"
-//                     }
-//                 }
-//             }
-//         }
-//     }, security: [
-//         {
-//             BearerAuth: [],
-//         },
-//     ],
-//     components: {
-//         securitySchemes: {
-//             BearerAuth: {
-//                 type: 'http',
-//                 scheme: 'bearer',
-//                 bearerFormat: 'JWT',
-//             },
-//         },
-//     },
-// };
-
-// userSchemas.js
-
 export const uploadProfilePictureSchema = {
-    "summary": "uploads an image",
-    "description": "",
-    "operationId": "uploadFile",
-    "parameters": [
-        {
-            "name": "petId",
-            "in": "path",
-            "description": "ID of pet to update",
-            "required": true,
-            "schema": {
-                "type": "integer",
-                "format": "int64"
-            }
+    tags: ['Picture'],
+    summary: 'Upload a profile picture',
+    description: 'Endpoint to upload a profile picture for the user',
+    requestBody: {
+        type: "object",
+        required: true,
+        content: {
+            'multipart/form-data': {
+                schema: {
+                    type: 'object',
+                    properties: {
+                        upload_file: {
+                            type: "string",
+                            format: "binary",
+                            title: "upload file",
+                            description: "alsapfealpfae"
+                        },
+                        picture: {
+                            type: 'string',
+                            format: 'binary',
+                        },
+                    },
+                    required: ['picture'],
+                },
+            },
         },
-        {
-            "name": "additionalMetadata",
-            "in": "query",
-            "description": "Additional Metadata",
-            "required": false,
-            "schema": {
-                "type": "string"
-            }
-        }
-    ],
-    "requestBody": {
-        "content": {
-            "application/octet-stream": {
-                "schema": {
-                    "type": "string",
-                    "format": "binary"
-                }
-            }
-        }
     },
-    "responses": {
-        "200": {
-            "description": "successful operation",
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "$ref": "#/components/schemas/ApiResponse"
-                    }
-                }
-            }
-        }
-    }
-}
-
-// //   export { uploadProfilePictureSchema };
+    responses: {
+        200: {
+            description: 'Profile picture uploaded successfully',
+            content: {
+                'application/json': {
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            message: { type: 'string' },
+                            location: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+        400: {
+            description: 'Bad request',
+            content: {
+                'application/json': {
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+        401: {
+            description: 'Unauthorized',
+            content: {
+                'application/json': {
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+        415: {
+            description: 'Unsupported Media Type',
+            content: {
+                'application/json': {
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+        413: {
+            description: 'Payload Too Large',
+            content: {
+                'application/json': {
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+        500: {
+            description: 'Internal server error',
+            content: {
+                'application/json': {
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            error: { type: 'string' },
+                        },
+                    },
+                },
+            },
+        },
+    },
+};

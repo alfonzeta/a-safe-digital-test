@@ -17,7 +17,6 @@ import { UpdatePostUseCase } from '../application/usecases/Post/UpdatePostUseCas
 
 import { PostController } from '../infrastructure/controllers/PostController';
 import { UserController } from '../infrastructure/controllers/UserController';
-import { WebSocketController } from '../infrastructure/controllers/WebSocketController';
 
 import { PrismaPostRepository } from '../infrastructure/persistence/PrismaPostRepository';
 import { PrismaUserRepository } from '../infrastructure/persistence/PrismaUserRepository';
@@ -70,9 +69,6 @@ const userController = new UserController(
   createAdminUseCase
 );
 
-// websockets
-const webSocketController = new WebSocketController();
-
 export const container = {
   prisma,
   repositories: {
@@ -94,7 +90,6 @@ export const container = {
   controllers: {
     userController,
     postController,
-    webSocketController
   },
   services: {
     jwtService

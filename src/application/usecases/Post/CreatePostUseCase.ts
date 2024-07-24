@@ -1,5 +1,6 @@
 import { Post } from '../../../domain/Post';
 import { PostRepository } from '../../../domain/PostRepository';
+import { wsClients } from '../../../index'; // Adjust the import path as needed
 
 class CreatePostUseCase {
 
@@ -19,6 +20,14 @@ class CreatePostUseCase {
         try {
             const newPost = new Post(null, title, content, new Date(), userId);
             const createdPost = await this.postRepository.create(newPost);
+
+            // Notify WebSocket clients
+            const message = `User ${userId} has created new post: "${title}"`;
+            for (const client of wsClients) {
+                client.send(message);
+            }
+
+
             return createdPost;
         } catch (error) {
             console.error('Error creating post:', error);
