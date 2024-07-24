@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient({
     datasources: {
         db: {
-            url: "postgres://postgres:password@localhost:5432/mydatabase"
+            url: process.env.DATABASE_URL_SEED
         },
     },
 });
