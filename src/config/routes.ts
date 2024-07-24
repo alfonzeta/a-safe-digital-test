@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { createUserSchema, deleteUserSchema, getUserSchema, updateUserSchema, signInSchema, createAdminSchema, uploadProfilePictureSchema } from '../infrastructure/controllers/userSchemas';
+import { createUserSchema, deleteUserSchema, getUserSchema, updateUserSchema, signInSchema, createAdminSchema, uploadProfilePictureSchema, getProfilePictureSchema } from '../infrastructure/controllers/userSchemas';
 import { createPostSchema, deletePostSchema, getPostSchema, updatePostSchema } from '../infrastructure/controllers/postSchemas';
 import { authMiddleware } from '../infrastructure/middleware/authMiddleware';
 import { container } from './di';
@@ -13,7 +13,7 @@ export default async function registerRoutes(fastify: FastifyInstance) {
   fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup', { schema: createUserSchema }, (request, reply) => userController.createUser(request, reply));
   // Private User routes
   fastify.post<{ Body: { picture: any } }>('/users/profile-picture', { preHandler: authMiddleware(1), schema: uploadProfilePictureSchema }, (request, reply) => userController.uploadProfilePicture(request, reply));
-  fastify.get<{ Body: { picture: any } }>('/users/profile-picture', { preHandler: authMiddleware(1) }, (request, reply) => userController.getProfilePicture(request, reply));
+  fastify.get<{ Body: { picture: any } }>('/users/profile-picture', { preHandler: authMiddleware(1), schema: getProfilePictureSchema }, (request, reply) => userController.getProfilePicture(request, reply));
   fastify.put<{ Params: { id: string }, Body: { name: string, email: string, password?: string } }>('/users/:id', { preHandler: authMiddleware(1), schema: updateUserSchema }, (request, reply) => userController.updateUser(request, reply));
   fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup/admin', { preHandler: authMiddleware(1), schema: createAdminSchema }, (request, reply) => userController.createAdmin(request, reply));
   fastify.delete<{ Params: { id: string } }>('/users/:id', { preHandler: authMiddleware(1), schema: deleteUserSchema }, (request, reply) => userController.deleteUser(request, reply));

@@ -29,17 +29,71 @@ export class PostController {
             const idPattern = /^[0-9]+$/;
             if (!idPattern.test(params.id)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
+            }
+
+            const postIdToDelete = parseInt(params.id, 10);
+            const authenticatedUser = request.user;
+            const postToDelete = await this.getPostUseCase.execute(postIdToDelete);
+
+            if (!postToDelete) {
+                return reply.code(404).send({ error: 'Post not found' });
+            }
+
+            if (!authenticatedUser) {
+                return reply.code(401).send({ error: 'Unauthorized' });
+            }
+
+            if (authenticatedUser.roleId !== 1 && parseInt(authenticatedUser.id) !== postToDelete.userId) {
+                return reply.code(403).send({ error: 'Forbidden' });
+            }
+
+            const deleted = await this.deletePostUseCase.execute(postIdToDelete);
+            if (deleted) {
+                return reply.code(204).send();
+            } else {
+                return reply.code(404).send({ error: 'Post not found' });
+            }
+        } catch (error) {
+            reply.code(500).send({ error: 'Internal Server Error' });
+        }
+    }
+
+
+    async updatePost(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+        try {
+            const params = request.params as { id: string };
+            const idPattern = /^[0-9]+$/;
+            if (!idPattern.test(params.id)) {
+                return reply.code(400).send({ error: 'Invalid user ID format' });
 
             }
-            const postId = parseInt(params.id, 10);
-            await this.deletePostUseCase.execute(postId);
-            reply.code(204).send();
-        } catch (error) {
-            if (error instanceof Error && error.message === 'Post not found') {
-                reply.code(404).send({ error: 'Post not found' });
-            } else {
-                reply.code(500).send({ error: 'Internal Server Error' });
+            const postIdToUpdate = parseInt(params.id, 10);
+            const postToUpdate = await this.getPostUseCase.execute(postIdToUpdate);
+            const authenticatedUser = request.user;
+
+            if (!postToUpdate) {
+                return reply.code(404).send({ error: 'Post not found' });
             }
+
+            if (!authenticatedUser) {
+                return reply.code(401).send({ error: 'Unauthorized' });
+            }
+
+            if (authenticatedUser.roleId !== 1 && parseInt(authenticatedUser.id) !== postToUpdate.userId) {
+                return reply.code(403).send({ error: 'Forbidden' });
+            }
+
+
+            const { title, content } = request.body as { title: string; content: string };
+            const updatedPost = await this.updatePostUseCase.execute(postIdToUpdate, title, content);
+            if (!updatedPost) {
+                reply.code(404).send({ error: 'Post not found' });
+                return;
+            }
+            reply.send(updatedPost);
+        } catch (error) {
+            console.error('Error updating post:', error);
+            reply.code(500).send({ error: 'Internal Server Error' });
         }
     }
 
@@ -69,25 +123,4 @@ export class PostController {
         }
     }
 
-    async updatePost(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-        try {
-            const params = request.params as { id: string };
-            const idPattern = /^[0-9]+$/;
-            if (!idPattern.test(params.id)) {
-                return reply.code(400).send({ error: 'Invalid user ID format' });
-
-            }
-            const postId = parseInt(params.id, 10);
-            const { title, content } = request.body as { title: string; content: string };
-            const updatedPost = await this.updatePostUseCase.execute(postId, title, content);
-            if (!updatedPost) {
-                reply.code(404).send({ error: 'Post not found' });
-                return;
-            }
-            reply.send(updatedPost);
-        } catch (error) {
-            console.error('Error updating post:', error);
-            reply.code(500).send({ error: 'Internal Server Error' });
-        }
-    }
 }

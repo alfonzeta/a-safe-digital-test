@@ -1,13 +1,11 @@
 import fastify from 'fastify';
 import websocketPlugin from '@fastify/websocket';
-import multipart from '@fastify/multipart';
+import multipart, { fastifyMultipart } from '@fastify/multipart';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import { container } from './config/di';
 import registerRoutes from './config/routes';
 import dotenv from 'dotenv';
-
-
 dotenv.config();
 
 const server = fastify();
@@ -15,7 +13,7 @@ const server = fastify();
 server.register(fastifySwagger, {
     openapi: {
         info: {
-            title: 'Your API',
+            title: 'A-sage digital test',
             description: 'API Documentation',
             version: '3.0.0',
         },
@@ -59,8 +57,8 @@ server.register(async function (fastify) {
     fastify.get('/ws', { websocket: true }, (socket, req) => { });
 });
 
-// Private User routes
 server.register(multipart, {
+    // attachFieldsToBody: true,
     limits: {
         fileSize: 100 * 1024, // 100 KB
     },

@@ -18,24 +18,45 @@ describe('DeletePostUseCase', () => {
         consoleSpy.mockRestore(); // Restore console.error after each test
     });
 
-    it('should successfully delete a post', async () => {
-        // Mock the repository method to resolve successfully
-        (postRepository.delete as jest.Mock).mockResolvedValue(undefined);
 
-        await expect(deletePostUseCase.execute(1)).resolves.toBeUndefined();
+    it('should return false if the post does not exist', async () => {
+        (postRepository.delete as jest.Mock).mockRejectedValue(new Error('Post not found')); // Simulate post not found error
+
+        const result = await deletePostUseCase.execute(1);
+        expect(result).toBe(false);
         expect(postRepository.delete).toHaveBeenCalledWith(1);
     });
 
-    it('should throw "Post not found" error if the post does not exist', async () => {
-        // Simulate post not found error
-        const error = new Error('Post not found');
-        (postRepository.delete as jest.Mock).mockRejectedValue(error);
+    it('should handle invalid post ID', async () => {
+        const invalidIds: any[] = [
+            'invalid',  // Non-numeric string
+            -1,         // Negative number
+            1.5         // Float number
+        ];
 
-        await expect(deletePostUseCase.execute(1))
-            .rejects
-            .toThrow('Post not found');
+        for (const invalidId of invalidIds) {
+            // Call the execute method with the invalidId and await its result
+            const result = await deletePostUseCase.execute(invalidId);
+
+            // Assert that the result should be null
+            expect(result).toBeNull();
+
+            // Assert that console.error was called with the correct message
+            expect(console.error).toHaveBeenCalledWith('Invalid ID format:', invalidId);
+
+            // Assert that postRepository.delete was not called
+            expect(postRepository.delete).not.toHaveBeenCalled();
+        }
+    });
+
+    it('should return true if post is succesfully deleted', async () => {
+        (postRepository.delete as jest.Mock).mockResolvedValue(undefined); // Simulate successful deletion
+
+        const result = await deletePostUseCase.execute(1);
+        expect(result).toBe(true);
         expect(postRepository.delete).toHaveBeenCalledWith(1);
     });
+
 
     it('should handle and log unexpected errors', async () => {
         const error = new Error('Unexpected error');
@@ -47,12 +68,5 @@ describe('DeletePostUseCase', () => {
         expect(console.error).toHaveBeenCalledWith('Error deleting post:', error);
     });
 
-    it('should handle invalid post ID', async () => {
-        const invalidIds = [-1, NaN, 'string' as unknown as number, 1.23];
-        for (const invalidId of invalidIds) {
-            await expect(deletePostUseCase.execute(invalidId as number))
-                .rejects
-                .toThrow('Internal Server Error'); // Assuming your method should handle this as an internal error
-        }
-    });
+
 });

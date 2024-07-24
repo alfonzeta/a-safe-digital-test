@@ -8,7 +8,6 @@ import { GetUserUseCase } from '../../application/usecases/User/GetUserUseCase';
 import AWS from 'aws-sdk';
 import dotenv from 'dotenv';
 
-
 dotenv.config();
 
 AWS.config.update({
@@ -48,6 +47,8 @@ export class UserController {
                 reply.code(401).send({ error: 'Unauthorized' });
                 return;
             }
+
+
 
             const data = await request.file(); // Fastify-multipart provides file handling via request.file()
 
@@ -143,10 +144,6 @@ export class UserController {
                 });
             });
 
-            // Set the appropriate Content-Type header based on the file's content type
-            const contentType = data.ContentType || 'application/octet-stream';
-            reply.header('Content-Type', contentType);
-
             // Stream the file data to the client
             if (data.Body instanceof Buffer) {
                 reply.code(200).send(data.Body);
@@ -168,10 +165,24 @@ export class UserController {
             if (!idPattern.test(params.id)) {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
-            const userId = parseInt(params.id, 10);
+            const userIdToUpdate = parseInt(params.id, 10);
             const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
 
-            const updatedUser = await this.updateUserUseCase.execute(userId, name, email, password, roleId);
+            const authenticatedUser = request.user;
+
+            if (!authenticatedUser) {
+                return reply.code(401).send({ error: 'Unauthorized' });
+            }
+
+            if (authenticatedUser.roleId !== 1 && parseInt(authenticatedUser.id) !== userIdToUpdate) {
+                return reply.code(403).send({ error: 'Forbidden' });
+            }
+
+            if (roleId && authenticatedUser.roleId !== 1 && roleId !== authenticatedUser.roleId) {
+                return reply.code(403).send({ error: 'Forbidden change of roleId' })
+            }
+
+            const updatedUser = await this.updateUserUseCase.execute(userIdToUpdate, name, email, password, roleId);
 
             if (!updatedUser) {
                 reply.code(404).send({ error: 'User not found' });
@@ -195,8 +206,20 @@ export class UserController {
                 return reply.code(400).send({ error: 'Invalid user ID format' });
             }
 
-            const userId = parseInt(params.id, 10);
-            const success = await this.deleteUserUseCase.execute(userId);
+
+            const userIdToDelete = parseInt(params.id, 10);
+            const authenticatedUser = request.user;
+
+
+            if (!authenticatedUser) {
+                return reply.code(401).send({ error: 'Unauthorized' });
+            }
+
+            if (authenticatedUser.roleId !== 1 && parseInt(authenticatedUser.id) !== userIdToDelete) {
+                return reply.code(403).send({ error: 'Forbidden' });
+            }
+
+            const success = await this.deleteUserUseCase.execute(userIdToDelete);
             if (!success) {
                 return reply.code(404).send({ error: 'User not found' });
             }
@@ -259,7 +282,16 @@ export class UserController {
             const { name, email, password, roleId } = request.body as { name: string; email: string; password: string; roleId: number };
 
             // Validation is handled by the schema, so no need to check for password here
+            const authenticatedUser = request.user;
 
+
+            if (!authenticatedUser) {
+                return reply.code(401).send({ error: 'Unauthorized' });
+            }
+
+            if (authenticatedUser.roleId !== 1) {
+                return reply.code(403).send({ error: 'Forbidden' });
+            }
 
             if (!email) {
                 reply.code(400).send({ error: 'Email already exists' });

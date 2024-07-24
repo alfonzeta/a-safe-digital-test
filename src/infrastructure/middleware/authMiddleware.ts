@@ -25,10 +25,10 @@ export const authMiddleware = (requiredRoleId: number) => async (request: Fastif
         const userRoleId = decodedToken.roleId;
         const userName = decodedToken.name;
 
-        if (userRoleId !== requiredRoleId) {
-            reply.code(403).send({ error: 'Forbidden' });
-            return;
-        }
+        // if (userRoleId !== requiredRoleId) {
+        //     reply.code(403).send({ error: 'Forbidden' });
+        //     return;
+        // }
 
         // Attach user info to request for further processing
         request.user = { id: decodedToken.id, roleId: userRoleId, name: userName };
