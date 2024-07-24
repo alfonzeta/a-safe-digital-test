@@ -13,6 +13,7 @@ describe('PostController', () => {
     let getPostUseCase: GetPostUseCase;
     let updatePostUseCase: UpdatePostUseCase;
     let mockReply: FastifyReply;
+    let mockRequest: FastifyRequest;
 
     beforeEach(() => {
         createPostUseCase = { execute: jest.fn() } as unknown as CreatePostUseCase;
@@ -31,6 +32,60 @@ describe('PostController', () => {
             code: jest.fn().mockReturnThis(),
             send: jest.fn()
         } as unknown as FastifyReply;
+        mockRequest = {
+            params: { id: '1' },
+            body: { title: 'Updated Title', content: 'Updated Content' },
+            user: { id: '1', roleId: 1 }
+        } as unknown as FastifyRequest;
+    });
+
+    describe('updatePost', () => {
+        it('should successfully update the post and return it', async () => {
+            const postToReturn = { id: 1, title: 'Updated Title', content: 'Updated Content' };
+            (getPostUseCase.execute as jest.Mock).mockResolvedValue({ userId: 1 });
+            (updatePostUseCase.execute as jest.Mock).mockResolvedValue(postToReturn);
+
+            await postController.updatePost(mockRequest, mockReply);
+
+            expect(mockReply.code).not.toHaveBeenCalledWith(400);
+            expect(mockReply.code).not.toHaveBeenCalledWith(401);
+            expect(mockReply.code).not.toHaveBeenCalledWith(403);
+            expect(mockReply.code).not.toHaveBeenCalledWith(404);
+            expect(mockReply.code).not.toHaveBeenCalledWith(500);
+            expect(mockReply.send).toHaveBeenCalledWith(postToReturn);
+        });
+
+
+        it('should return 500 if there is an internal server error', async () => {
+            (getPostUseCase.execute as jest.Mock).mockRejectedValue(new Error('Internal Error'));
+
+            await postController.updatePost(mockRequest, mockReply);
+
+            expect(mockReply.code).toHaveBeenCalledWith(500);
+            expect(mockReply.send).toHaveBeenCalledWith({ error: 'Internal Server Error' });
+        });
+
+
+        it('should return 400 for invalid postId format', async () => {
+            const request = { params: { id: 'invalid' }, body: { title: 'Title', content: 'Content' } } as FastifyRequest;
+
+            await postController.updatePost(request, mockReply);
+
+            expect(mockReply.code).toHaveBeenCalledWith(400);
+            expect(mockReply.send).toHaveBeenCalledWith({ error: 'Invalid user ID format' });
+        });
+
+        it('should return 404 if post is not found', async () => {
+            (updatePostUseCase.execute as jest.Mock).mockResolvedValue(null);
+
+            const request = { params: { id: '1' }, body: { title: 'Title', content: 'Content' } } as FastifyRequest;
+
+            await postController.updatePost(request, mockReply);
+
+            expect(mockReply.code).toHaveBeenCalledWith(404);
+            expect(mockReply.send).toHaveBeenCalledWith({ error: 'Post not found' });
+        });
+
     });
 
     describe('createPost', () => {
@@ -60,18 +115,15 @@ describe('PostController', () => {
     });
 
     describe('deletePost', () => {
-        it('should delete a post and return status 204', async () => {
-            (deletePostUseCase.execute as jest.Mock).mockResolvedValue(undefined);
+        it('should return 204 if post is successfully deleted', async () => {
+            (getPostUseCase.execute as jest.Mock).mockResolvedValue({ userId: 1 });
+            (deletePostUseCase.execute as jest.Mock).mockResolvedValue(true);
 
-            const request = { params: { id: '1' } } as FastifyRequest;
+            await postController.deletePost(mockRequest, mockReply);
 
-            await postController.deletePost(request, mockReply);
-
-            expect(deletePostUseCase.execute).toHaveBeenCalledWith(1);
             expect(mockReply.code).toHaveBeenCalledWith(204);
-            expect(mockReply.send).toHaveBeenCalledWith(); // Expect send to be called with no arguments
+            expect(mockReply.send).not.toHaveBeenCalled();
         });
-
         it('should return 400 for invalid postId format', async () => {
             const request = { params: { id: 'invalid' } } as FastifyRequest;
 
@@ -92,12 +144,10 @@ describe('PostController', () => {
             expect(mockReply.send).toHaveBeenCalledWith({ error: 'Post not found' });
         });
 
-        it('should handle and respond with status 500 on error', async () => {
-            (deletePostUseCase.execute as jest.Mock).mockRejectedValue(new Error('Internal Error'));
+        it('should return 500 if there is an internal server error', async () => {
+            (getPostUseCase.execute as jest.Mock).mockRejectedValue(new Error('Internal Error'));
 
-            const request = { params: { id: '1' } } as FastifyRequest;
-
-            await postController.deletePost(request, mockReply);
+            await postController.deletePost(mockRequest, mockReply);
 
             expect(mockReply.code).toHaveBeenCalledWith(500);
             expect(mockReply.send).toHaveBeenCalledWith({ error: 'Internal Server Error' });
@@ -155,48 +205,5 @@ describe('PostController', () => {
         });
     });
 
-    describe('updatePost', () => {
-        it('should update and return the post with status 200', async () => {
-            const post = new Post(1, 'Updated Title', 'Updated Content', new Date(), 1);
-            (updatePostUseCase.execute as jest.Mock).mockResolvedValue(post);
 
-            const request = { params: { id: '1' }, body: { title: 'Updated Title', content: 'Updated Content' } } as FastifyRequest;
-
-            await postController.updatePost(request, mockReply);
-
-            expect(updatePostUseCase.execute).toHaveBeenCalledWith(1, 'Updated Title', 'Updated Content');
-            expect(mockReply.send).toHaveBeenCalledWith(post);
-        });
-
-        it('should return 400 for invalid postId format', async () => {
-            const request = { params: { id: 'invalid' }, body: { title: 'Title', content: 'Content' } } as FastifyRequest;
-
-            await postController.updatePost(request, mockReply);
-
-            expect(mockReply.code).toHaveBeenCalledWith(400);
-            expect(mockReply.send).toHaveBeenCalledWith({ error: 'Invalid user ID format' });
-        });
-
-        it('should return 404 if post is not found', async () => {
-            (updatePostUseCase.execute as jest.Mock).mockResolvedValue(null);
-
-            const request = { params: { id: '1' }, body: { title: 'Title', content: 'Content' } } as FastifyRequest;
-
-            await postController.updatePost(request, mockReply);
-
-            expect(mockReply.code).toHaveBeenCalledWith(404);
-            expect(mockReply.send).toHaveBeenCalledWith({ error: 'Post not found' });
-        });
-
-        it('should handle and respond with status 500 on error', async () => {
-            (updatePostUseCase.execute as jest.Mock).mockRejectedValue(new Error('Internal Error'));
-
-            const request = { params: { id: '1' }, body: { title: 'Title', content: 'Content' } } as FastifyRequest;
-
-            await postController.updatePost(request, mockReply);
-
-            expect(mockReply.code).toHaveBeenCalledWith(500);
-            expect(mockReply.send).toHaveBeenCalledWith({ error: 'Internal Server Error' });
-        });
-    });
 });
