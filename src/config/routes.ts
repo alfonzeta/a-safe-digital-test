@@ -3,15 +3,27 @@ import { createUserSchema, deleteUserSchema, getUserSchema, updateUserSchema, si
 import { createPostSchema, deletePostSchema, getPostSchema, updatePostSchema } from '../infrastructure/controllers/postSchemas';
 import { authMiddleware } from '../infrastructure/middleware/authMiddleware';
 import { container } from './di';
+import multer from 'fastify-multer';
+
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage });
 
 export default async function registerRoutes(fastify: FastifyInstance) {
   const { userController, postController } = container.controllers;
+
+
   // Open User routes
   fastify.get<{ Params: { id: string } }>('/users/:id', { schema: getUserSchema }, (request, reply) => userController.getUser(request, reply));
   fastify.post<{ Body: { email: string, password: string } }>('/users/signin', { schema: signInSchema }, (request, reply) => userController.signIn(request, reply));
   fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup', { schema: createUserSchema }, (request, reply) => userController.createUser(request, reply));
   // Private User routes
+
   fastify.post<{ Body: { picture: any } }>('/users/profile-picture', { preHandler: authMiddleware(1), schema: uploadProfilePictureSchema }, (request, reply) => userController.uploadProfilePicture(request, reply));
+
+  // With prevalidation solution
+  // fastify.post<{ Body: { picture: any } }>('/users/profile-picture', { preHandler: authMiddleware(1), preValidation: multer({ storage: multer.memoryStorage() }).single("media"), schema: uploadProfilePictureSchema }, (request, reply) => userController.uploadProfilePicture(request, reply));
+
+
   fastify.get<{ Body: { picture: any } }>('/users/profile-picture', { preHandler: authMiddleware(1), schema: getProfilePictureSchema }, (request, reply) => userController.getProfilePicture(request, reply));
   fastify.put<{ Params: { id: string }, Body: { name: string, email: string, password?: string } }>('/users/:id', { preHandler: authMiddleware(1), schema: updateUserSchema }, (request, reply) => userController.updateUser(request, reply));
   fastify.post<{ Body: { name: string, email: string, password: string } }>('/users/signup/admin', { preHandler: authMiddleware(1), schema: createAdminSchema }, (request, reply) => userController.createAdmin(request, reply));

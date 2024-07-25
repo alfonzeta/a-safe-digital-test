@@ -8,7 +8,9 @@ import registerRoutes from './config/routes';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const server = fastify();
+const server = fastify({
+    logger: true
+});
 export const wsClients: Set<any> = new Set(); // Set to keep track of WebSocket connections
 
 server.register(fastifySwagger, {
@@ -38,7 +40,6 @@ server.register(fastifySwaggerUi, {
     },
     staticCSP: true,
     transformSpecification: (swaggerObject, request, reply) => {
-        console.log('Swagger Object:', swaggerObject); // Debugging line
         return swaggerObject;
     }
 });
@@ -80,11 +81,8 @@ server.register(async function (fastify) {
         });
     });
 });
-server.register(multipart, {
+server.register(fastifyMultipart, {
     // attachFieldsToBody: true,
-    limits: {
-        fileSize: 100 * 1024, // 100 KB
-    },
 });
 
 // Register your routes

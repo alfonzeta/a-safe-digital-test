@@ -53,8 +53,8 @@ export class UserController {
 
             const data = await request.file(); // Fastify-multipart provides file handling via request.file()
 
+
             if (!data) {
-                console.log('No file data found');
                 reply.code(400).send({ error: 'No file uploaded' });
                 return;
             }
@@ -62,8 +62,6 @@ export class UserController {
             // Check file size
             // Check if the file was truncated
             if (data.file.truncated) {
-                console.log(data.file.truncated);
-
                 reply.code(413).send({ error: 'File size exceeds the 500 KB limit' });
                 return;
             }

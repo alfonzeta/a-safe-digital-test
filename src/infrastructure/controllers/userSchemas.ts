@@ -387,9 +387,6 @@ export const signInSchema = {
     },
 };
 
-
-
-
 export const getProfilePictureSchema = {
     tags: ['Picture'],
     summary: 'Get the profile picture',
@@ -462,32 +459,19 @@ export const getProfilePictureSchema = {
 };
 
 export const uploadProfilePictureSchema = {
+    description: "Upload a profile picture - NOT WORKING FROM SWAGGER UI (WORKING ON IT). It seems data type or scheme is in conflict with how swagger ui handles upload file. Endpoint working in production. USE CURL PROVIDED BY SWAGGER UI INSTEAD",
     tags: ['Picture'],
-    summary: 'Upload a profile picture',
-    description: 'Endpoint to upload a profile picture for the user',
-    requestBody: {
-        type: "object",
-        required: true,
-        content: {
-            'multipart/form-data': {
-                schema: {
-                    type: 'object',
-                    properties: {
-                        upload_file: {
-                            type: "string",
-                            format: "binary",
-                            title: "upload file",
-                            description: "alsapfealpfae"
-                        },
-                        picture: {
-                            type: 'string',
-                            format: 'binary',
-                        },
-                    },
-                    required: ['picture'],
-                },
-            },
+    summary: 'Upload user profile picture',
+    consumes: ["application/octet-stream"],
+    body: {
+        // type: "object",
+        properties: {
+            media: {
+                // type: "string",
+                format: "binary"
+            }
         },
+        // required: ['media']  // Ensure 'media' is a required field
     },
     responses: {
         200: {
@@ -498,11 +482,11 @@ export const uploadProfilePictureSchema = {
                         type: 'object',
                         properties: {
                             message: { type: 'string' },
-                            location: { type: 'string' },
-                        },
-                    },
-                },
-            },
+                            location: { type: 'string' }
+                        }
+                    }
+                }
+            }
         },
         400: {
             description: 'Bad request',
@@ -511,11 +495,11 @@ export const uploadProfilePictureSchema = {
                     schema: {
                         type: 'object',
                         properties: {
-                            error: { type: 'string' },
-                        },
-                    },
-                },
-            },
+                            error: { type: 'string' }
+                        }
+                    }
+                }
+            }
         },
         401: {
             description: 'Unauthorized',
@@ -524,11 +508,11 @@ export const uploadProfilePictureSchema = {
                     schema: {
                         type: 'object',
                         properties: {
-                            error: { type: 'string' },
-                        },
-                    },
-                },
-            },
+                            error: { type: 'string' }
+                        }
+                    }
+                }
+            }
         },
         415: {
             description: 'Unsupported Media Type',
@@ -537,11 +521,11 @@ export const uploadProfilePictureSchema = {
                     schema: {
                         type: 'object',
                         properties: {
-                            error: { type: 'string' },
-                        },
-                    },
-                },
-            },
+                            error: { type: 'string' }
+                        }
+                    }
+                }
+            }
         },
         413: {
             description: 'Payload Too Large',
@@ -550,11 +534,11 @@ export const uploadProfilePictureSchema = {
                     schema: {
                         type: 'object',
                         properties: {
-                            error: { type: 'string' },
-                        },
-                    },
-                },
-            },
+                            error: { type: 'string' }
+                        }
+                    }
+                }
+            }
         },
         500: {
             description: 'Internal server error',
@@ -563,11 +547,26 @@ export const uploadProfilePictureSchema = {
                     schema: {
                         type: 'object',
                         properties: {
-                            error: { type: 'string' },
-                        },
-                    },
-                },
+                            error: { type: 'string' }
+                        }
+                    }
+                }
+            }
+        }
+    }, security: [
+        {
+            BearerAuth: [],
+        },
+    ],
+    components: {
+        securitySchemes: {
+            BearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
             },
         },
     },
 };
+
+
