@@ -16,9 +16,9 @@ export const wsClients: Set<any> = new Set(); // Set to keep track of WebSocket 
 server.register(fastifySwagger, {
     openapi: {
         info: {
-            title: 'A-sage digital test',
+            title: 'A-safe digital test',
             description: 'API Documentation',
-            version: '3.0.0',
+            version: '0.0.0',
         },
         components: {
             securitySchemes: {
@@ -54,26 +54,18 @@ server.addHook('onSend', async (request, reply) => {
     }
 });
 
+
 server.register(websocketPlugin);
 // WebSocket route
+// WebSocket route
 server.register(async function (fastify) {
-    fastify.get('/*', { websocket: true }, (socket /* WebSocket */, req /* FastifyRequest */) => {
+
+
+    fastify.get('/posts', { websocket: true, schema: { hide: true } }, (socket /* WebSocket */, req /* FastifyRequest */) => {
         wsClients.add(socket); // Add new WebSocket connection to the set
 
         socket.on('message', message => {
-            socket.send('hi from wildcard route');
-        });
-
-        socket.on('close', () => {
-            wsClients.delete(socket); // Remove connection when it closes
-        });
-    });
-
-    fastify.get('/', { websocket: true }, (socket /* WebSocket */, req /* FastifyRequest */) => {
-        wsClients.add(socket); // Add new WebSocket connection to the set
-
-        socket.on('message', message => {
-            socket.send('hi from server');
+            socket.send('hi from server, post endpoint');
         });
 
         socket.on('close', () => {
