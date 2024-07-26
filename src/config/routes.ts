@@ -11,7 +11,9 @@ import multer from 'fastify-multer';
 export default async function registerRoutes(fastify: FastifyInstance) {
   const { userController, postController } = container.controllers;
 
-
+  fastify.get<{ Params: { id: string } }>('/', (request, reply) => {
+    reply.send({ message: 'Hello, welcome to the API created for the technical test project repository for A-SAFE DIGITAL!. ', github_repo: "https://github.com/alfonzeta/a-safe-digital-test", API_Documentation: "51.254.97.250:8080/documentation" });
+  });
   // Open User routes
   fastify.get<{ Params: { id: string } }>('/users/:id', { schema: getUserSchema }, (request, reply) => userController.getUser(request, reply));
   fastify.post<{ Body: { email: string, password: string } }>('/users/signin', { schema: signInSchema }, (request, reply) => userController.signIn(request, reply));

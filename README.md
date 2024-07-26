@@ -36,10 +36,12 @@
 14. [Bonus Characteristics](#bonus-characteristics)
 ## Introduction
 
-Technical test project repository for A-SAFE DIGITAL. This project showcases a range of development techniques and coding skills. The main technologies used in this project include Fastify, Prisma, PostgreSQL, WebSockets, Docker, TypeScript and hexagonal architecture.
+Technical test project repository for A-SAFE DIGITAL. This project showcases a range of development techniques and coding skills. The main technologies used in this project include Fastify, Prisma, PostgreSQL, WebSockets, Docker, TypeScript and domain driven design architecture.
 
-  
+On top of that, I used jira kanban to keep tracks of project changes and linked it to my github for commit info as well. 
+Read more about this in [Bonus Characteristics](#bonus-characteristics)
 
+### Deployed project
 You can find the deployed version of this project here:
 
 [Deployed Project](http://51.254.97.250:8080/)
@@ -132,7 +134,10 @@ Keep reading to see more about [Architecture considerations](#architecture-consi
 
 ## Installation
 
-In this section, you will find detailed instructions to get the project running locally in a fully working development environment. This setup will ensure you have all the necessary tools and configurations to develop, test, and run the application effectively. The project leverages Docker for containerization, making it easier to manage dependencies and environments. Two methods are included to achieve this: with Docker and without Docker. In both methods the database seeding has been included, although it is not strictly necessary, it is highly recommended to be able to start developing.
+In this section, you will find detailed instructions to get the project running locally in a fully working development environment. 
+This setup will ensure you have all the necessary tools and configurations to develop, test, and run the application effectively. 
+
+Two methods are included to achieve this: with Docker and without Docker. In both methods the database seeding has been included, although it is not strictly necessary, it is highly recommended to be able to start developing.
 
 ### Docker
 
@@ -240,18 +245,21 @@ Once previous steps have been gone through, the API documentation will be availe
 
 ## Websocket for Real-time notifications
 
-The WebSocket integration in this Fastify server enables real-time communication between the server and connected clients. This functionality is crucial for features such as real-time notifications. In this particular case, websocket is implemented so, after creating a new post, a notification message is sent to all connected WebSocket clients. For example purposes, this implementation is showcased in the `CreatePostUseCase`. However, the robust design and flexible architecture allow for seamless integration of WebSocket notifications in other use cases, making it a versatile feature that can be extended to various functionalities within the application.
+The WebSocket integration in this Fastify server enables real-time communication between the server and connected clients. This functionality is crucial for features such as real-time notifications. In this particular case, websocket is implemented so, after creating a new post, a notification message is sent to all connected WebSocket clients. For example purposes, this implementation is showcased in the `CreatePostUseCase`. However, the design is flexible enough to integrate WebSocket notifications in other use cases.
+
 
 Below is a video demonstrating the WebSocket integration in action:
+
+
+https://github.com/user-attachments/assets/0f7cf2bb-8d3e-4a16-aad3-465931c12cd1
+
 
 ## Testing
 This project includes a comprehensive suite of unit tests to ensure the reliability and correctness of the application. The tests are written using Jest, a popular JavaScript testing framework. The primary goal of these tests is to verify the behavior of individual units of code, such as use cases and repository methods, to ensure they function as expected.
 
 ### Note on Coverage
 
-These tests were created as part of a technical demonstration to showcase testing skills. As such, they focus on covering the primary scenarios for each unit test. In a production environment, more exhaustive testing would be conducted to cover a wider range of edge cases and ensure complete reliability.
-
-Testing is a crucial component of software development, ensuring the quality and dependability of the codebase. Through these unit tests, I aim to demonstrate a commitment to quality and a solid understanding of testing principles. In a real-world scenario, further extensive testing would be implemented to cover all possible edge cases and scenarios.
+I created this tests as part of a technical demonstration to showcase testing skills. As such, they focus on covering the primary scenarios. In a production environment, more exhaustive testing would have to be conducted to cover a wider range of edge cases and ensure complete reliability.
 
 ## Architecture considerations
 This project was created as part of a technical test. As such, some aspects of its design, functionality, and approach may seem over-engineered for a project of this scale. The implementation of clean architecture, while potentially excessive for this particular project, was deliberately chosen to showcase a deeper understanding of architectural principles. One of the key requirements was to "organize the codebase to support scalability and maintainability," and employing a clean architecture approach serves this purpose well. Despite its complexity, this architecture demonstrates the capability to build a scalable and maintainable codebase, which is crucial for future expansion and long-term maintenance.
@@ -345,6 +353,15 @@ This project includes several advanced features and enhancements beyond the orig
 -   **bcrypt for Password Hashing**: Using bcrypt to securely hash user passwords, ensuring enhanced security for user authentication and data protection.
       
 -   **Environment Configuration with dotenv**: Using dotenv for managing environment variables, allowing for secure and flexible configuration of the application across different environments.
-- ****Implementation of Domain-Driven Design (DDD) Principles with Clean Architecture**: Adopting DDD principles and clean architecture to structure the codebase into well-defined layers (Domain, Application, Infrastructure, and Presentation). This approach ensures a clear separation of concerns, making the codebase highly maintainable, scalable, and testable. DDD focuses on the core business domain and its logic, allowing for better alignment between technical solutions and business needs. Clean architecture supports the independence of each layer, facilitating easier modifications and enhancements without impacting other parts of the system.
-    
+- **Implementation of Domain-Driven Design (DDD) Principles with Clean Architecture**: Adopting DDD principles and clean architecture to structure the codebase into well-defined layers (Domain, Application, Infrastructure, and Presentation). This approach ensures a clear separation of concerns, making the codebase highly maintainable, scalable, and testable. DDD focuses on the core business domain and its logic, allowing for better alignment between technical solutions and business needs. Clean architecture supports the independence of each layer, facilitating easier modifications and enhancements without impacting other parts of the system.
+-- **Jira Kanban board**: In software development, keeping an eye on the big picture is crucial. Jira helps with this by providing some features that boost team productivity.
+<a href="https://ibb.co/zPDjymc"><img src="https://i.ibb.co/1RjhD0V/Screenshot-from-2024-07-26-12-26-47.png" alt="Screenshot-from-2024-07-26-12-26-47" border="0"></a>
+  I think jira, or this kind of tools are good for software development for a few reasons:
+- It helps the team to visualize project goals in a more intuitive way. 
+- It allows everyone in the team to have quick access to the overall project status.
+- Task tracking gets improved since you have an overview of tasks that need to be taken care of.
+- Fully integrated with git and other tools like Bitbucket, adding the option to link each commit to a specific task and facilitating CI/CD.
+- Increases productivity, project tracking and project management tasks.
+
+
 These bonus characteristics collectively enhance the overall quality, security, and developer experience of the project, showcasing a thorough understanding of modern web development practices.
