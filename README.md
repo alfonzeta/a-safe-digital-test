@@ -1,5 +1,5 @@
 
-# README for A-SAFE DIGTAL API
+# README for A-SAFE DIGITAL API
 
   
 
@@ -243,6 +243,10 @@ Once previous steps have been gone through, the API documentation will be availe
 The WebSocket integration in this Fastify server enables real-time communication between the server and connected clients. This functionality is crucial for features such as real-time notifications. In this particular case, websocket is implemented so, after creating a new post, a notification message is sent to all connected WebSocket clients. For example purposes, this implementation is showcased in the `CreatePostUseCase`. However, the robust design and flexible architecture allow for seamless integration of WebSocket notifications in other use cases, making it a versatile feature that can be extended to various functionalities within the application.
 
 Below is a video demonstrating the WebSocket integration in action:
+
+
+https://github.com/user-attachments/assets/0f7cf2bb-8d3e-4a16-aad3-465931c12cd1
+
 
 ## Testing
 This project includes a comprehensive suite of unit tests to ensure the reliability and correctness of the application. The tests are written using Jest, a popular JavaScript testing framework. The primary goal of these tests is to verify the behavior of individual units of code, such as use cases and repository methods, to ensure they function as expected.
