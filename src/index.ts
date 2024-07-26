@@ -17,7 +17,7 @@ server.register(fastifySwagger, {
     openapi: {
         info: {
             title: 'A-safe digital test',
-            description: 'API Documentation',
+            description: 'API Documentation - ADMIN USER: email: "alice@example.com", password: "password123"',
             version: '0.0.0',
         },
         components: {

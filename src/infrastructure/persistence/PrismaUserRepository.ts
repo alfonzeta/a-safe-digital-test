@@ -59,7 +59,13 @@ export class PrismaUserRepository implements UserRepository {
         roleId: user.roleId
       };
 
-      if (user.password) {
+      console.log("heeerere", user.password);
+
+
+      if (user.password && user.password.length === 60 && user.password.startsWith('$2')) {
+        updateData.password = user.password;
+      }
+      if (user.password && user.password.length != 60 && !user.password.startsWith('$2')) {
         updateData.password = await bcrypt.hash(user.password, SALT_ROUNDS);
       }
 
@@ -99,14 +105,16 @@ export class PrismaUserRepository implements UserRepository {
 
     // Check if the password is in a likely hashed format
     const isProbablyHashed = user.password.length === 60 && user.password.startsWith('$2');
+    console.log("isprobablyhashed: ", isProbablyHashed);
 
     if (isProbablyHashed) {
       // Compare using bcrypt if it's probably hashed
-      const isMatch = await bcrypt.compare(password, user.password);
-      return isMatch;
+      return await bcrypt.compare(password, user.password);
+
     } else {
       // Direct comparison if it's not hashed
       const isMatch = password === user.password;
+      console.log("ismatch2: ", isMatch);
 
       if (isMatch) {
         // If the plain text password matches, hash it and update the user's record (FOR PLAIN TEXT PASSOWRD FROM SEEDING DATABASE)
