@@ -1,5 +1,5 @@
 
-# README for A-SAFE DIGTAL API
+# README for A-SAFE DIGITAL API
 
   
 
