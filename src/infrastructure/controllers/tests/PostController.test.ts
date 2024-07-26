@@ -90,10 +90,13 @@ describe('PostController', () => {
 
     describe('createPost', () => {
         it('should create a post and return it with status 201', async () => {
-            const post = new Post(1, 'Title', 'Content', new Date(), 1);
+            const post = { id: 1, title: 'Title', content: 'Content', createdAt: new Date(), userId: 1 };
             (createPostUseCase.execute as jest.Mock).mockResolvedValue(post);
 
-            const request = { body: { title: 'Title', content: 'Content', userId: 1 } } as FastifyRequest;
+            const request = {
+                body: { title: 'Title', content: 'Content', userId: 1 },
+                user: { id: '1' } // Mock authenticated user
+            } as FastifyRequest;
 
             await postController.createPost(request, mockReply);
 
@@ -102,16 +105,21 @@ describe('PostController', () => {
             expect(mockReply.send).toHaveBeenCalledWith(post);
         });
 
+
         it('should handle and respond with status 500 on error', async () => {
             (createPostUseCase.execute as jest.Mock).mockRejectedValue(new Error('Internal Error'));
 
-            const request = { body: { title: 'Title', content: 'Content', userId: 1 } } as FastifyRequest;
+            const request = {
+                body: { title: 'Title', content: 'Content', userId: 1 },
+                user: { id: '1' } // Mock authenticated user
+            } as FastifyRequest;
 
             await postController.createPost(request, mockReply);
 
             expect(mockReply.code).toHaveBeenCalledWith(500);
             expect(mockReply.send).toHaveBeenCalledWith({ error: 'Internal Server Error' });
         });
+
     });
 
     describe('deletePost', () => {

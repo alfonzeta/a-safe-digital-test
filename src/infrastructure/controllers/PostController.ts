@@ -54,7 +54,13 @@ export class PostController {
         try {
             const { title, content, userId } = request.body as { title: string; content: string; userId: number };
 
-            const createdPost = await this.createPostUseCase.execute(title, content, userId);
+            const authenticatedUser = request.user;
+
+            if (!authenticatedUser) {
+                return reply.code(401).send({ error: 'Unauthorized' });
+            }
+
+            const createdPost = await this.createPostUseCase.execute(title, content, parseInt(authenticatedUser.id));
             reply.code(201).send(createdPost);
         } catch (error) {
             reply.code(500).send({ error: 'Internal Server Error' });
