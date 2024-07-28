@@ -12,8 +12,12 @@ export class SignInUseCase {
         if (!email || !password) {
             throw new Error('Email and password are required');
         }
+        console.log(email, password);
+
 
         const user = await this.userRepository.findByEmail(email);
+        console.log("user2: ", user);
+
         if (!user || user.id === null) return null;
 
         const isPasswordValid = await this.userRepository.validatePassword(email, password);

@@ -171,7 +171,11 @@ export class UserController {
             }
             const createdUser = await this.createAdminUseCase.execute(name, email, password, roleId);
 
-            reply.code(201).send(createdUser);
+            if (!createdUser) {
+                reply.code(400).send({ error: "Email already exists" })
+            } else {
+                reply.code(201).send(createdUser);
+            }
         } catch (error) {
             // Type guard to check if error is an instance of Error
             if (error instanceof Error) {

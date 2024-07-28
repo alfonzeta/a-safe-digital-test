@@ -42,11 +42,10 @@ export const createPostSchema = {
     summary: 'Create Post - Must include existent userId',
     body: {
         type: 'object',
-        required: ['title', 'content', 'userId'],
+        required: ['title', 'content'],
         properties: {
             title: { type: 'string', minLength: 1 },
             content: { type: 'string', minLength: 10 },
-            userId: { type: 'integer' },
         },
         additionalProperties: false
     },
@@ -77,6 +76,19 @@ export const createPostSchema = {
                 message: { type: 'string' }
             },
             required: ['error', 'message']
+        },
+    }, security: [
+        {
+            BearerAuth: [],
+        },
+    ],
+    components: {
+        securitySchemes: {
+            BearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            },
         },
     },
 };

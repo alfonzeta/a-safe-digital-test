@@ -48,7 +48,7 @@ export class PrismaUserRepository implements UserRepository {
     if (user.roleId === null) {
       throw new Error('Role ID should not be null');
     }
-    return new User(user.id, user.name, user.email, user.roleId);
+    return new User(user.id, user.name, user.email, user.roleId, user.password);
   }
 
   async update(user: User): Promise<User> {
@@ -99,6 +99,8 @@ export class PrismaUserRepository implements UserRepository {
   async validatePassword(email: string, password: string): Promise<boolean> {
     const user = await this.findByEmail(email);
     if (!user || !user.password) return false;
+
+    console.log("user: ", user);
 
     // Check if the password is in a likely hashed format
     const isProbablyHashed = user.password.length === 60 && user.password.startsWith('$2');

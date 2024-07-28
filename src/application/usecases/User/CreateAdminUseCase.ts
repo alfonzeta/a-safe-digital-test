@@ -7,6 +7,8 @@ class CreateAdminUseCase {
     public async execute(name: string, email: string, password: string, roleId: number = 1): Promise<User | null> {
         try {
             const existingUser = await this.userRepository.findByEmail(email);
+            console.log(existingUser);
+
             if (existingUser) {
                 return null;
             }

@@ -93,7 +93,8 @@ export class PostController {
 
             const deleted = await this.deletePostUseCase.execute(postIdToDelete);
             if (deleted) {
-                return reply.code(204);
+
+                reply.code(204);
             } else {
                 return reply.code(404).send({ error: 'Post not found' });
             }
