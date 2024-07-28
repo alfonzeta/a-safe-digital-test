@@ -11,7 +11,7 @@ class CreateAdminUseCase {
                 return null;
             }
 
-            const newUser = new User(null, name, email, password, roleId = 1);
+            const newUser = new User(null, name, email, roleId = 1, password);
             const createdUser = await this.userRepository.create(newUser);
 
             return createdUser;

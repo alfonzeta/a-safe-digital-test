@@ -21,8 +21,6 @@ class UpdateUserUseCase {
             existingUser.password = password;
             existingUser.roleId = roleId;
 
-            console.log(existingUser);
-
             const updatedUser = await this.userRepository.update(existingUser);
 
             return updatedUser;

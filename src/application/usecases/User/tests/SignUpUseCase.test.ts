@@ -21,7 +21,7 @@ describe('SignUpUseCase', () => {
     });
 
     it('should create and return a new user if email does not exist', async () => {
-        const user = new User(null, 'John Doe', 'john@example.com', 'password123', 2);
+        const user = new User(null, 'John Doe', 'john@example.com', 2, 'password123');
         (userRepository.findByEmail as jest.Mock).mockResolvedValue(null); // Simulate no existing user
         (userRepository.create as jest.Mock).mockResolvedValue(user); // Simulate user creation
 
@@ -32,7 +32,7 @@ describe('SignUpUseCase', () => {
     });
 
     it('should throw an error if email already exists', async () => {
-        const existingUser = new User(1, 'Jane Doe', 'john@example.com', 'password123', 2);
+        const existingUser = new User(1, 'Jane Doe', 'john@example.com', 2, 'password123');
         (userRepository.findByEmail as jest.Mock).mockResolvedValue(existingUser); // Simulate existing user
 
         await expect(signUpUseCase.execute('John Doe', 'john@example.com', 'password123'))

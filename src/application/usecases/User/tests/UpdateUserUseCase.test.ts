@@ -21,8 +21,8 @@ describe('UpdateUserUseCase', () => {
     });
 
     it('should update and return user if the user exists', async () => {
-        const existingUser = new User(1, 'Old Name', 'old@example.com', 'oldpassword', 2);
-        const updatedUser = new User(1, 'New Name', 'new@example.com', 'newpassword', 3);
+        const existingUser = new User(1, 'Old Name', 'old@example.com', 2, 'oldpassword');
+        const updatedUser = new User(1, 'New Name', 'new@example.com', 3, 'newpassword');
 
         (userRepository.findById as jest.Mock).mockResolvedValue(existingUser); // Simulate user found
         (userRepository.update as jest.Mock).mockResolvedValue(updatedUser); // Simulate user update
@@ -39,8 +39,8 @@ describe('UpdateUserUseCase', () => {
     });
 
     it('should update and return user with updated name', async () => {
-        const existingUser = new User(1, 'Old Name', 'old@example.com', 'password123', 2);
-        const updatedUser = new User(1, 'New Name', 'old@example.com', 'password123', 2);
+        const existingUser = new User(1, 'Old Name', 'old@example.com', 2, 'password123');
+        const updatedUser = new User(1, 'New Name', 'old@example.com', 2, 'password123');
 
         (userRepository.findById as jest.Mock).mockResolvedValue(existingUser); // Simulate user found
         (userRepository.update as jest.Mock).mockResolvedValue(updatedUser); // Simulate user update
@@ -71,8 +71,8 @@ describe('UpdateUserUseCase', () => {
 
 
     it('should update and return user with updated email', async () => {
-        const existingUser = new User(1, 'Old Name', 'old@example.com', 'password123', 2);
-        const updatedUser = new User(1, 'Old Name', 'new@example.com', 'password123', 2);
+        const existingUser = new User(1, 'Old Name', 'old@example.com', 2, 'password123');
+        const updatedUser = new User(1, 'Old Name', 'new@example.com', 2, 'password123');
 
         (userRepository.findById as jest.Mock).mockResolvedValue(existingUser); // Simulate user found
         (userRepository.update as jest.Mock).mockResolvedValue(updatedUser); // Simulate user update
@@ -85,8 +85,8 @@ describe('UpdateUserUseCase', () => {
     });
 
     it('should update and return user with updated password', async () => {
-        const existingUser = new User(1, 'Old Name', 'old@example.com', 'oldpassword', 2);
-        const updatedUser = new User(1, 'Old Name', 'old@example.com', 'newpassword', 2);
+        const existingUser = new User(1, 'Old Name', 'old@example.com', 2, 'oldpassword');
+        const updatedUser = new User(1, 'Old Name', 'old@example.com', 2, 'newpassword');
 
         (userRepository.findById as jest.Mock).mockResolvedValue(existingUser); // Simulate user found
         (userRepository.update as jest.Mock).mockResolvedValue(updatedUser); // Simulate user update
@@ -99,8 +99,8 @@ describe('UpdateUserUseCase', () => {
     });
 
     it('should update and return user with updated roleId', async () => {
-        const existingUser = new User(1, 'Old Name', 'old@example.com', 'password123', 2);
-        const updatedUser = new User(1, 'Old Name', 'old@example.com', 'password123', 3);
+        const existingUser = new User(1, 'Old Name', 'old@example.com', 2, 'password123',);
+        const updatedUser = new User(1, 'Old Name', 'old@example.com', 3, 'password123');
 
         (userRepository.findById as jest.Mock).mockResolvedValue(existingUser); // Simulate user found
         (userRepository.update as jest.Mock).mockResolvedValue(updatedUser); // Simulate user update
@@ -123,7 +123,7 @@ describe('UpdateUserUseCase', () => {
     });
 
     it('should throw an error if the email already exists', async () => {
-        const existingUser = new User(1, 'Old Name', 'old@example.com', 'oldpassword', 2);
+        const existingUser = new User(1, 'Old Name', 'old@example.com', 2, 'oldpassword');
         (userRepository.findById as jest.Mock).mockResolvedValue(existingUser); // Simulate user found
 
         // Simulate an error indicating the email already exists

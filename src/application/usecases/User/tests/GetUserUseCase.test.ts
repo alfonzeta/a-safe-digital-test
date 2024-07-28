@@ -20,7 +20,7 @@ describe('GetUserUseCase', () => {
     });
 
     it('should return a user successfully if the user exists', async () => {
-        const user = new User(1, 'Admin User', 'admin@example.com', "$2b$10$d5TE7T51d4WAf8anjqwVpOdfgCk0hcrxiL8Jzuxrb6i52eYC73bSq", 1);
+        const user = new User(1, 'Admin User', 'admin@example.com', 1, "$2b$10$d5TE7T51d4WAf8anjqwVpOdfgCk0hcrxiL8Jzuxrb6i52eYC73bSq");
         (userRepository.findById as jest.Mock).mockResolvedValue(user);
 
         const result = await getUserUseCase.execute(1);

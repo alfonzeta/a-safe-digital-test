@@ -21,7 +21,7 @@ describe('CreateUserUseCase', () => {
     });
 
     it('should create and return a user successfully if no user with the email exists', async () => {
-        const user = new User(1, 'User Name', 'user@example.com', 'hashedpassword', 2);
+        const user = new User(1, 'User Name', 'user@example.com', 2, 'hashedpassword');
         (userRepository.findByEmail as jest.Mock).mockResolvedValue(null); // No user with the given email
         (userRepository.create as jest.Mock).mockResolvedValue(user); // Successfully created user
 
@@ -32,7 +32,7 @@ describe('CreateUserUseCase', () => {
     });
 
     it('should return null if a user with the email already exists', async () => {
-        const existingUser = new User(1, 'Existing User', 'user@example.com', 'hashedpassword', 2);
+        const existingUser = new User(1, 'Existing User', 'user@example.com', 2, 'hashedpassword');
         (userRepository.findByEmail as jest.Mock).mockResolvedValue(existingUser); // User already exists
 
         const result = await createUserUseCase.execute('User Name', 'user@example.com', 'hashedpassword', 2);

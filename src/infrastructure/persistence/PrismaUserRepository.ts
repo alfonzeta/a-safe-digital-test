@@ -8,6 +8,16 @@ const SALT_ROUNDS = 10;
 export class PrismaUserRepository implements UserRepository {
   constructor(private prisma: PrismaClient) { }
 
+  async findById(id: number): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) return null;
+    if (user.roleId === null) {
+      throw new Error('Role ID should not be null');
+    }
+    return new User(user.id, user.name, user.email, user.roleId);
+  }
   async create(user: User): Promise<User> {
     try {
       const hashedPassword: string = await bcrypt.hash(user.password!, SALT_ROUNDS);
@@ -19,7 +29,7 @@ export class PrismaUserRepository implements UserRepository {
           roleId: user.roleId
         },
       });
-      return new User(createdUser.id, createdUser.name, createdUser.email, createdUser.password, createdUser.roleId);
+      return new User(createdUser.id, createdUser.name, createdUser.email, createdUser.roleId);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new Error('Email already exists');
@@ -28,16 +38,6 @@ export class PrismaUserRepository implements UserRepository {
     }
   }
 
-  async findById(id: number): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
-    if (!user) return null;
-    if (user.roleId === null) {
-      throw new Error('Role ID should not be null');
-    }
-    return new User(user.id, user.name, user.email, user.password, user.roleId);
-  }
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
@@ -48,7 +48,7 @@ export class PrismaUserRepository implements UserRepository {
     if (user.roleId === null) {
       throw new Error('Role ID should not be null');
     }
-    return new User(user.id, user.name, user.email, user.password, user.roleId);
+    return new User(user.id, user.name, user.email, user.roleId);
   }
 
   async update(user: User): Promise<User> {
@@ -58,9 +58,6 @@ export class PrismaUserRepository implements UserRepository {
         email: user.email,
         roleId: user.roleId
       };
-
-      console.log("heeerere", user.password);
-
 
       if (user.password && user.password.length === 60 && user.password.startsWith('$2')) {
         updateData.password = user.password;
@@ -74,7 +71,7 @@ export class PrismaUserRepository implements UserRepository {
         data: updateData,
       });
 
-      return new User(updatedUser.id, updatedUser.name, updatedUser.email, updatedUser.password, updatedUser.roleId);
+      return new User(updatedUser.id, updatedUser.name, updatedUser.email, updatedUser.roleId);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new Error('Email already exists');
@@ -105,7 +102,6 @@ export class PrismaUserRepository implements UserRepository {
 
     // Check if the password is in a likely hashed format
     const isProbablyHashed = user.password.length === 60 && user.password.startsWith('$2');
-    console.log("isprobablyhashed: ", isProbablyHashed);
 
     if (isProbablyHashed) {
       // Compare using bcrypt if it's probably hashed
@@ -114,7 +110,6 @@ export class PrismaUserRepository implements UserRepository {
     } else {
       // Direct comparison if it's not hashed
       const isMatch = password === user.password;
-      console.log("ismatch2: ", isMatch);
 
       if (isMatch) {
         // If the plain text password matches, hash it and update the user's record (FOR PLAIN TEXT PASSOWRD FROM SEEDING DATABASE)

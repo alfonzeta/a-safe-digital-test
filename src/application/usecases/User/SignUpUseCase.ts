@@ -18,7 +18,7 @@ class SignUpUseCase {
             }
 
             // Create new user
-            const newUser = new User(null, name, email, password, roleId);
+            const newUser = new User(null, name, email, roleId, password);
             const createdUser = await this.userRepository.create(newUser);
 
             return createdUser;
